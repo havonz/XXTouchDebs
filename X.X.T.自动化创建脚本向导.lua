@@ -3,7 +3,7 @@
 	X.X.T.自动化创建脚本向导.lua
 
 	Created by 苏泽 on 22-09-28.
-	Copyright (c) 2017年 苏泽. All rights reserved.
+	Copyright (c) 2022年 苏泽. All rights reserved.
 
 	一种编程去代码化方案
 	用户可以使用该脚本以近似录制的方式实现判断较为简单的脚本而不用编写代码
