@@ -10,11 +10,12 @@
 			csim        = [实数型，可选，界面列表全局相似度，不填默认取 90],
 			interval_ms = [实数型，可选，每轮检测到下轮检测开始的间隔毫秒数，默认 100],
 			log         = [函数型，可选，日志处理函数，函数原型：log(日志文本) 无返回，默认空函数（丢弃所有日志）],
+			log_date    = [布尔型，可选，日志信息是否额外附带日期时间，默认 否],
 			error       = [函数型，可选，错误处理函数，函数原型：error(错误文本) 无返回，默认 error（抛出错误）],
 			filter      = [函数型，可选，界面过滤器函数，函数原型：filter(表型界面信息, 范围0~100相似度) 返回假表示不通过，默认 screen.is_colors],
 			pre_run     = [函数型，可选，每轮检测前需要执行的函数，函数原型：pre_run(整个界面列表) 无返回，默认空函数],
 			post_run    = [函数型，可选，每轮检测后需要执行的函数，函数原型：post_run(整个界面列表, nil 或 {index = 当前界面在界面列表中的索引, ui = 表型当前界面信息}) 无返回，默认空函数],
-			else_run    = [函数型，可选，每轮所有界面都不匹配的的情况下需要执行的函数，函数原型：else_run(整个界面列表) 无返回，默认空函数],
+			else_run    = [函数型，可选，每轮所有界面都不匹配的的情况下需要执行的函数，在 post_run 之前执行，函数原型：else_run(整个界面列表) 无返回，默认空函数],
 			timeout_s   = [实数型，可选，任意界面或不匹配超时时间，单位秒，默认 0 不超时],
 			timeout_run = [函数型，可选，任意界面超时后的回调函数，函数原型：timeout_run(整个界面列表, nil 或 {index = 当前界面在界面列表中的索引, ui = 表型当前界面信息}) 无返回，默认空函数],
 			enter       = [函数型，可选，进入界面循环之前会调用该函数一次，函数原型：enter(整个界面列表) 无返回，默认空函数],
@@ -171,6 +172,16 @@ function _M.runloop(orig_uilist)
 	if type(_L.loopname) ~= 'string' then
 		error(string.format('给 XXTDo.runloop 参数 #1 需要至少包含 name 字段的表\n例如 {name = "一个名字"}\n\n%s', debug.traceback()), 2)
 	end
+	local _log_datetime_gen
+	if type(uilist.log_date) == 'boolean' and uilist.log_date then
+		_log_datetime_gen = function()
+			return string.format('[%s] ', _datetime())
+		end
+	else
+		_log_datetime_gen = function()
+			return ''
+		end
+	end
 	local function _callifexists(UI, func, ...)
 		if (type(func) == 'function') then
 			local noerr, errmsg = pcall(func, ...)
@@ -262,16 +273,16 @@ function _M.runloop(orig_uilist)
 	local function to_finally()
 		local unpack_breakloop_results = _TMP.unpack_breakloop_results
 		if _callifexists('finally', uilist.finally, uilist, unpack_breakloop_results()) == 'breakloop' then
-			_L.log(string.format('[%s] 从 finally 跳出界面匹配循环 %s', _datetime(), _L.loopname))
+			_L.log(string.format('%s从 finally 跳出界面匹配循环 %s', _log_datetime_gen(), _L.loopname))
 			unpack_breakloop_results = _TMP.unpack_breakloop_results
 		end
 		if type(unpack_breakloop_results) == 'function' then
 			return unpack_breakloop_results()
 		end
 	end
-	_L.log(string.format('[%s] 开始进入界面匹配循环 %s', _datetime(), _L.loopname))
+	_L.log(string.format('%s开始进入界面匹配循环 %s', _log_datetime_gen(), _L.loopname))
 	if (_callifexists('enter', uilist.enter, uilist) == 'breakloop') then
-		_L.log(string.format('[%s] 从 enter 跳出界面匹配循环 %s', _datetime(), _L.loopname))
+		_L.log(string.format('%s从 enter 跳出界面匹配循环 %s', _log_datetime_gen(), _L.loopname))
 		return to_finally()
 	end
 	while (true) do
@@ -279,7 +290,7 @@ function _M.runloop(orig_uilist)
 		screen.keep()
 		sys.msleep(2)
 		if (_callifexists('pre_run', uilist.pre_run, uilist) == 'breakloop') then
-			_L.log(string.format('[%s] 从 pre_run 跳出界面匹配循环 %s', _datetime(), _L.loopname))
+			_L.log(string.format('%s从 pre_run 跳出界面匹配循环 %s', _log_datetime_gen(), _L.loopname))
 			return to_finally()
 		end
 		local foundui = nil
@@ -305,10 +316,10 @@ function _M.runloop(orig_uilist)
 					else
 						idxstr = string.format('[%d]', idx)
 					end
-					_L.log(string.format('[%s] 匹配 %s %s %q', _datetime(), _L.loopname, idxstr, currentui.name))
+					_L.log(string.format('%s匹配 %s %s %q', _log_datetime_gen(), _L.loopname, idxstr, currentui.name))
 					local runstat = _callifexists({ui = currentui, index = idx, subindex = subindex}, currentui.run, currentui, idx, uilist)
 					if (runstat == 'breakloop') then
-						_L.log(string.format('[%s] 从 %s %q 跳出界面匹配循环 %s', _datetime(), idxstr, currentui.name, _L.loopname))
+						_L.log(string.format('%s从 %s %q 跳出界面匹配循环 %s', _log_datetime_gen(), idxstr, currentui.name, _L.loopname))
 						return to_finally()
 					elseif (runstat == 'success') then
 						_current_interval_ms = type(currentui.interval_ms) == 'number' and currentui.interval_ms or _L.interval_ms
@@ -323,7 +334,7 @@ function _M.runloop(orig_uilist)
 								timeout_run = currentui.timeout_run
 							end
 							if (_callifexists({ui = currentui, index = idx, subindex = subindex}, timeout_run, uilist, foundui) == 'breakloop') then
-								_L.log(string.format('[%s] 从 %s %q 超时跳出界面匹配循环 %s', _datetime(), idxstr, currentui.name, _L.loopname))
+								_L.log(string.format('%s从 %s %q 超时跳出界面匹配循环 %s', _log_datetime_gen(), idxstr, currentui.name, _L.loopname))
 								return to_finally()
 							end
 						end
@@ -332,7 +343,7 @@ function _M.runloop(orig_uilist)
 				elseif #uilist == idx then
 					_L.timer_current_found = -1
 					if (_callifexists('else_run', uilist.else_run, uilist) == 'breakloop') then
-						_L.log(string.format('[%s] 从 else_run 跳出界面匹配循环 %s', _datetime(), _L.loopname))
+						_L.log(string.format('%s从 else_run 跳出界面匹配循环 %s', _log_datetime_gen(), _L.loopname))
 						return to_finally()
 					end
 				end
@@ -345,7 +356,7 @@ function _M.runloop(orig_uilist)
 			end
 		end
 		if (_callifexists('post_run', uilist.post_run, uilist, foundui) == 'breakloop') then
-			_L.log(string.format('[%s] 从 post_run 跳出界面匹配循环 %s', _datetime(), _L.loopname))
+			_L.log(string.format('%s从 post_run 跳出界面匹配循环 %s', _log_datetime_gen(), _L.loopname))
 			return to_finally()
 		end
 		if (_L.timer_current_found ~= _L.timer_last_found) then
@@ -353,7 +364,7 @@ function _M.runloop(orig_uilist)
 			_L.timer_begin_time = os.time()
 		elseif (_L.timeout_s > 0 and os.difftime(os.time(), _L.timer_begin_time) > _L.timeout_s) then
 			if (_callifexists('global_timeout_run', _L.timeout_run, uilist, foundui) == 'breakloop') then
-				_L.log(string.format('[%s] 从 global_timeout_run 跳出界面匹配循环 %s', _datetime(), _L.loopname))
+				_L.log(string.format('%s从 global_timeout_run 跳出界面匹配循环 %s', _log_datetime_gen(), _L.loopname))
 				return to_finally()
 			end
 		end
