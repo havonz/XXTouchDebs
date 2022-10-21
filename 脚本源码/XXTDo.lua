@@ -17,7 +17,7 @@
 			post_run    = [函数型，可选，每轮检测后需要执行的函数，函数原型：post_run(整个界面列表, nil 或 {index = 当前界面在界面列表中的索引, ui = 表型当前界面信息}) 无返回，默认空函数],
 			else_run    = [函数型，可选，每轮所有界面都不匹配的的情况下需要执行的函数，在 post_run 之前执行，函数原型：else_run(整个界面列表) 无返回，默认空函数],
 			timeout_s   = [实数型，可选，任意界面或不匹配超时时间，单位秒，默认 0 不超时],
-			timeout_run = [函数型，可选，任意界面超时后的回调函数，函数原型：timeout_run(整个界面列表, nil 或 {index = 当前界面在界面列表中的索引, ui = 表型当前界面信息}) 无返回，默认空函数],
+			timeout_run = [函数型，可选，任意界面超时后的回调函数，函数原型：timeout_run(整个界面列表, nil 或 {index = 当前界面在界面列表中的索引, ui = 表型当前界面信息}) 这个函数可以按需显式返回 false 或 'failed' 表示处理超时失败不重置超时计时器，默认空函数返回失败],
 			enter       = [函数型，可选，进入界面循环之前会调用该函数一次，函数原型：enter(整个界面列表) 无返回，默认空函数],
 			finally     = [函数型，可选，进入界面循环之前会调用该函数一次，函数原型：finally(整个界面列表[, XXTDo.breakloop 的参数列表]) 无返回，但它可以再次调用 XXTDo.breakloop 来更改 runloop 的返回值，默认空函数],
 			{
@@ -25,7 +25,7 @@
 				csim        = [实数型，可选，当前界面相似度，不填默认取界面列表全局相似度],
 				run         = [函数型，匹配到当前界面后需要执行的函数，函数原型：run(表型当前界面信息, 当前界面在界面列表中的索引, 整个界面列表) 这个函数可以按需显式返回 false 或 'failed' 表示匹配该界面失败],
 				timeout_s   = [实数型，可选，当前界面停留超时时间，单位秒，默认 0 不超时],
-				timeout_run = [函数型，可选，任意界面超时后的回调函数，函数原型：timeout_run(整个界面列表, nil 或 {index = 当前界面在界面列表中的索引, ui = 表型当前界面信息}) 无返回，默认取界面列表全局 timeout_run],
+				timeout_run = [函数型，可选，当前界面超时后的回调函数，函数原型：timeout_run(整个界面列表, nil 或 {index = 当前界面在界面列表中的索引, ui = 表型当前界面信息}) 这个函数可以按需显式返回 false 或 'failed' 表示处理超时失败不重置超时计时器，默认取界面列表全局 timeout_run],
 				group       = [表型，可选，多组点色列表数组，其中任何一组匹配都表示该界面匹配],
 				-- 以下是点色列表数组
 				{x*, y*, color*},
@@ -38,7 +38,7 @@
 				csim        = [实数型，可选，当前界面相似度，不填默认取界面列表全局相似度],
 				run         = [函数型，匹配到当前界面后需要执行的函数，函数原型：run(表型当前界面信息, 当前界面在界面列表中的索引, 整个界面列表) 这个函数可以按需显式返回 false 或 'failed' 表示匹配该界面失败],
 				timeout_s   = [实数型，可选，当前界面停留超时时间，单位秒，默认 0 不超时],
-				timeout_run = [函数型，可选，任意界面超时后的回调函数，函数原型：timeout_run(整个界面列表, nil 或 {index = 当前界面在界面列表中的索引, ui = 表型当前界面信息}) 无返回，默认取界面列表全局 timeout_run],
+				timeout_run = [函数型，可选，任意界面超时后的回调函数，函数原型：timeout_run(整个界面列表, nil 或 {index = 当前界面在界面列表中的索引, ui = 表型当前界面信息}) 这个函数可以按需显式返回 false 或 'failed' 表示处理超时失败不重置超时计时器，默认取界面列表全局 timeout_run],
 				group       = [表型，可选，多组点色列表数组，其中任何一组匹配都表示该界面匹配],
 				-- 以下是点色列表数组
 				{x*, y*, color*},
@@ -74,7 +74,7 @@
 local _ENV = table.deep_copy(_ENV)
 local _M = {}
 
-_M._VERSION = '0.4'
+_M._VERSION = '0.5'
 
 local breakloop_tips = '请不要在界面过滤器函数或 XXTDo.runloop 外部执行 XXTDo.breakloop '..string.sub(string.sha256(string.random('0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ', 1000)), 7, 16)
 
@@ -194,6 +194,7 @@ function _M.runloop(orig_uilist)
 					time = _datetime(),
 					UI = UI,
 				}, 3)
+				return 'failed' -- 如果回调抛出错误脚本却没结束，则返回 failed
 			else
 				if errmsg == nil or errmsg == true or errmsg == 'success' then
 					return 'success' -- 界面动作返回 nil 或 true 或 'success' 表示匹配成功，否则表示匹配失败，不中断当前轮匹配
@@ -333,8 +334,13 @@ function _M.runloop(orig_uilist)
 							if type(currentui.timeout_run) == 'function' then
 								timeout_run = currentui.timeout_run
 							end
-							if (_callifexists({ui = currentui, index = idx, subindex = subindex}, timeout_run, uilist, foundui) == 'breakloop') then
-								_L.log(string.format('%s从 %s %q 超时跳出界面匹配循环 %s', _log_datetime_gen(), idxstr, currentui.name, _L.loopname))
+							_L.log(string.format('%s从 %s %s %q 超时', _log_datetime_gen(), _L.loopname, idxstr, currentui.name))
+							local timeout_run_results = _callifexists({ui = currentui, index = idx, subindex = subindex}, timeout_run, uilist, foundui) 
+							_L.log(string.format('%s%s 超时回调返回 %s ', _log_datetime_gen(), _L.loopname, timeout_run_results))
+							if (timeout_run_results == 'success') then
+								_L.timer_begin_time = os.time()
+							elseif (timeout_run_results == 'breakloop') then
+								_L.log(string.format('%s从 %s %q 超时回调跳出界面匹配循环 %s', _log_datetime_gen(), idxstr, currentui.name, _L.loopname))
 								return to_finally()
 							end
 						end
@@ -363,8 +369,13 @@ function _M.runloop(orig_uilist)
 			_L.timer_last_found = _L.timer_current_found
 			_L.timer_begin_time = os.time()
 		elseif (_L.timeout_s > 0 and os.difftime(os.time(), _L.timer_begin_time) > _L.timeout_s) then
-			if (_callifexists('global_timeout_run', _L.timeout_run, uilist, foundui) == 'breakloop') then
-				_L.log(string.format('%s从 global_timeout_run 跳出界面匹配循环 %s', _log_datetime_gen(), _L.loopname))
+			_L.log(string.format('%s%s 未匹配任何界面超时', _log_datetime_gen(), _L.loopname))
+			local timeout_run_results = _callifexists('global_timeout_run', _L.timeout_run, uilist, foundui)
+			_L.log(string.format('%s%s 超时回调返回 %s', _log_datetime_gen(), _L.loopname, timeout_run_results))
+			if (timeout_run_results == 'success') then
+				_L.timer_begin_time = os.time()
+			elseif (timeout_run_results == 'breakloop') then
+				_L.log(string.format('%s从 未匹配任何界面的全局 超时回调跳出界面匹配循环 %s', _log_datetime_gen(), _L.loopname))
 				return to_finally()
 			end
 		end
