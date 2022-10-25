@@ -1,3 +1,15 @@
+* 更新 [2022-10-25]
+	- 1.3-5 Changes:
+		- Fixed an issue where the remote CC page could not scan the device
+		- Fixed sys.log slow
+		- Fixed an issue with daemon.lua using xxtouch.post to return an incorrect value
+		- Add custom OpenAPI features
+	- 1.3-5 改动如下：
+		- 修正远程管理中控页面扫不到设备的问题
+		- 修正 sys.log 耗时长的问题
+		- 修正 daemon.lua 中 xxtouch.post 返回值不正确的问题
+		- 增加自定义 OpenAPI
+
 * 更新 [2022-09-29]
 	- 1.3-4 Changes:
 		- Fixed App crash on iOS11
