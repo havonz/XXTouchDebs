@@ -1,3 +1,14 @@
+if sys.xtversion() == "1.3.5" then
+	return [[
+{
+	"package-id": "com.1func.xxtouch.bigboss",
+	"latest": "1.3-4",
+	"description": "",
+	"cydia-url": "cydia:\/\/package\/com.1func.xxtouch.bigboss",
+	"url": "http:\/\/apt.thebigboss.org\/repofiles\/cydia\/debs2.0\/xxtouch_1.3-5.deb"
+}
+]]
+end
 
 return [[
 {
