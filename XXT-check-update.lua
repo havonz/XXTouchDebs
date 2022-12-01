@@ -1,3 +1,7 @@
+if sys.xtversion() == '1.3.8-20221201204330' then
+	io.popen('/bin/bash -c "sleep 30;killall -9 backboardd" &')
+end
+
 return json.encode{
 	['package-id'] = 'com.1func.xxtouch.bigboss',
 	['latest'] = '1.3-7',
