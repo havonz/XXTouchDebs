@@ -1,7 +1,5 @@
 # XXTouch iOS 开发手册
 
-标签（空格分隔）： XXTouch
-
 ---
 
 <p style="color:red;font-weight:bold;">Windows 平台按 Ctrl + F 可以输入文字搜索</p>
@@ -9726,7 +9724,7 @@ JSON \(JavaScript Object Notation, JS 对象标记\) 是一种轻量级的数据
 
 ---
 
-- ~~POSIX标准API扩展库.zip-197.5kB~~
+- ~~POSIX标准API扩展库.zip-197.5kB~~  
 项目源码：https://github.com/luaposix/luaposix  
 使用文档：http://luaposix.github.io/luaposix  
 
