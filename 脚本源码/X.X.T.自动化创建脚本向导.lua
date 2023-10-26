@@ -600,7 +600,7 @@ function get_tile_pos(info)
 	info.y = tonumber(info.y) or (scr_h / 2)
     local frame = webview.frame(info.id)
     local x, y = (frame.x * factor + (frame.width / 2) * factor), (frame.y * factor + (frame.height/ 2) * factor)
-	return {x = x, y = y}
+	return {x = math.floor(x), y = math.floor(y)}
 end
 
 function confirm_button(info)
