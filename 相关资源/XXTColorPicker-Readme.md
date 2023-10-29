@@ -23,11 +23,6 @@
 ### 如何展开简易编辑器  
 - 找到取色器主界面左侧边缘的三个小点，鼠标按住往右边拖  
 
-### 脚本和自定义格式  
-- 应用根目录的 `scripts` 子目录包含 快捷键、自定义格式 的脚本配置文件  
-- 取色器快捷键配置 `scripts/colorpicker/keymap.lua`  
-- 内置的自定义格式配置 `scripts/colorpicker/customformats/X_Y_Color.lua`  
-
 ## 快捷键  
 
 ### `1`、`2`、`3`、`4`、`5`、`6`、`7`、`8`、`9`、`0`  
@@ -93,3 +88,76 @@
 
 ### `Ctrl` + `↑`、`↓`、`←`、`→`  
 - 将鼠标在图片上的位置往上、下、左、右移动 10 个像素  
+
+### `鼠标滚轮向上/向下滚动`  
+- 将鼠标在图片上的位置往上、下移动一个像素  
+
+### `Shift` + `鼠标滚轮向上/向下滚动`  
+- 将鼠标在图片上的位置往左、右移动一个像素  
+
+## 自定义脚本  
+
+### 目录结构  
+- 应用根目录的 `scripts` 子目录包含 快捷键、自定义格式 的脚本配置文件  
+- 取色器快捷键配置 `scripts/colorpicker/keymap.lua`  
+- 内置的自定义格式配置 `scripts/colorpicker/customformats/X_Y_Color.lua`  
+
+### 脚本  
+- 支持 Lua 5.2 所有内置函数
+- 取色器 API 列表
+    ```lua
+    loadImageData(data)
+        打开图片数据到新的标签页
+    loadImageFile(filename)
+        打开图片文件到新标签页
+    capture()
+        从连接的设备上截屏并使用新标签页打开
+    viewRotateLeft()
+        当前图像向左旋转
+    viewRotateRight()
+        当前图像向右旋转
+    w, h = getImageSize()
+        获取当前图片尺寸
+    a, s, x, c = getPosASXC()
+        获取 A、S、X、C 四处缓存点的颜色
+    poslist = getPosList()
+        获取点色列表
+    text = clipText()
+        从剪贴板读取文本
+    copyText(text)
+        将文本写入剪贴板
+    x, y, rgb = getCurrentXY()
+        获取当前鼠标指针在图像上的位置
+    posinfo = getCurrentPos()
+        获取当前鼠标指针在图像上的位置信息
+    rgb = getColor(x, y)
+        获取当前标签页打开的图片上的某个坐标的颜色
+    r, g, b = getColorRGB(x, y)
+        获取当前标签页打开的图片上的某个坐标的颜色
+    getRectPNGData(top, left, right, bottom)
+        获取当前图片部分区域的图片的 PNG 数据
+    getRectPNGDataHex(top, left, right, bottom)
+        获取当前图片部分区域 Hex 格式的图片的 PNG 数据
+    getRectJPEGData(top, left, right, bottom)
+        获取当前图片部分区域的图片的 JPEG 数据
+    getRectJPEGDataHex(top, left, right, bottom)
+        获取当前图片部分区域 Hex 格式的图片的 JPEG 数据
+    printLog(...)
+        输出内容到日志
+    alertInfo(msg, title)
+        提示信息弹窗
+    alertWarn(msg, title)
+        警告弹窗
+    alertError(msg, title)
+        错误弹窗
+    uploadScriptAndRun(data)
+        上传脚本内容到设备并运行
+    title = getImagesTabPane():getTitleAt(getImagesTabPane():getSelectedIndex())
+        获取当前图片标签页的标题
+    b64str = string.base64Encode(str)
+    str = string.base64Decode(b64str)
+        使用 base64 编码/解码字符串
+    hexstr = string.toHex(str)
+    str = string.fromHex(hexstr)
+        使用 16 进制数文本编码/解码字符串
+    ```
