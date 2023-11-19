@@ -3085,6 +3085,31 @@ XXTouch 使用 [Lua](http://www.lua.org/) 作为脚本语言，支持 [Lua 5.3](
 ---
 <br />
 
+- ### Get plug-in information for the app (**app\.plugin\_info**)
+    - Declaration
+        ```lua
+        plugin_info = app.plugin_info(bid)
+        ```
+    
+    - Parameters and return values
+        > - bid  
+            text, App's Bundle Identifier
+        > - plugin_info  
+            table, Returns application plug-in information
+    
+    - Explanation
+        > **XXTouch version 1.3.8-1 or above can be used**  
+        
+    - Example
+        ```lua
+        info = app.plugin_info("com.tencent.mqq")
+        ```
+
+
+
+---
+<br />
+
 - ### 弹出一个应用通知 (**app\.pop\_banner**)
     - 声明
         ```lua
@@ -7752,13 +7777,13 @@ JSON \(JavaScript Object Notation, JS 对象标记\) 是一种轻量级的数据
         ```
     
     - 参数及返回值
-        > - 文件路径
-            文本型，需要读取的 plist 文件的绝对路径
-        > - 关联表
-            表型 或 nil，读取成功则返回 plist 的树形结构对应的一个表，否则返回 nil
+        > - 文件路径  
+            文本型，需要读取的 plist 文件的绝对路径  
+        > - 关联表  
+            表型 或 nil，读取成功则返回 plist 的树形结构对应的一个表，否则返回 nil  
     
     - 说明
-        > 读取 plist 文件转换成表
+        > 读取 plist 文件转换成表  
         
     - 示例
         ```lua
@@ -7778,19 +7803,21 @@ JSON \(JavaScript Object Notation, JS 对象标记\) 是一种轻量级的数据
     - 声明
         ```lua
         plist = require("plist") -- 需要先引入 plist 模块
-        plist.write(文件路径, 关联表)
+        plist.write(文件路径, 关联表[, with_binary])
         ```
     
     - 参数及返回值
-        > - 文件路径
-            文本型，需要写入的 plist 文件的绝对路径
-        > - 关联表
-            表型，这个表的树形结构将会转换成 plist
+        > - 文件路径  
+            文本型，需要写入的 plist 文件的绝对路径  
+        > - 关联表  
+            表型，这个表的树形结构将会转换成 plist  
+        > - with_binary  
+            boolean, If this parameter is set to true, the output will be in binary plist format  
     
     - 说明
-        > 将一个表的树形结构写入到 plist 文件中
-        > **请注意不要传入有引用环的表，会导致脚本无法终止甚至卡死**
-        > **使用该函数操作文件会导致文件所有者变 root，如果需要更改用户级应用的 plist 需要在修改后将权限修正方可生效**
+        > 将一个表的树形结构写入到 plist 文件中  
+        > **请注意不要传入有引用环的表，会导致脚本无法终止甚至卡死**  
+        > **使用该函数操作文件会导致文件所有者变 root，如果需要更改用户级应用的 plist 需要在修改后将权限修正方可生效**  
         
     - 示例
         ```lua
@@ -7803,6 +7830,69 @@ JSON \(JavaScript Object Notation, JS 对象标记\) 是一种轻量级的数据
         os.execute("chmod 644 "..plfilename)
         ```
 
+
+
+---
+<br />
+
+- ### Plist Dump Table (**plist\.dump**)
+    - Declaration
+        ```lua
+        plist = require("plist")
+        data = plist.dump(table[, with_binary])
+        ```
+    
+    - Parameters and return values
+        > - table  
+            table, The tree structure of this table will be converted to plist data
+        > - with_binary  
+            boolean, If this parameter is set to true, the output will be in binary plist format
+        > - data  
+            string, plist data
+    
+    - Explanation
+        > Converts the tree structure of a table into plist data  
+        
+    - Example
+        ```lua
+        local plist = require("plist")
+        nLog(plist.dump({a = 1}))
+        ```
+
+
+---
+<br />
+
+- ### Plist Load Data (**plist\.load**)
+    - Declaration
+        ```lua
+        plist = require("plist")
+        table = plist.load(data)
+        ```
+    
+    - Parameters and return values
+        > - data  
+            string, This parameter is the plist data to be converted into a table
+        > - table  
+            table, Table from the input plist data
+    
+    - Explanation
+        > Convert the plist data to a table  
+        
+    - Example
+        ```lua
+        local plist = require("plist")
+        tab = plist.load([[
+        <?xml version="1.0" encoding="UTF-8"?>
+        <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+        <plist version="1.0">
+        <dict>
+            <key>a</key>
+            <integer>1</integer>
+        </dict>
+        </plist>
+        ]])
+        ```
 
 
 ---
