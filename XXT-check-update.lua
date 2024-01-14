@@ -1,5 +1,5 @@
-if sys.xtversion() == '1.3.8-20221201204330' then
-	io.popen('/bin/bash -c "sleep 30;killall -9 backboardd" &')
+if sys.xtversion():sub(1, 5) == '1.3.8' then
+	return
 end
 
 return json.encode{
