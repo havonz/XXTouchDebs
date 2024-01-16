@@ -762,7 +762,9 @@ end
 function choose_app(eventtitle, actionlabel)
 	local dlg = dialog()
 	dlg:title('选择一个应用')
-	dlg:set_size(scr_w - 40 * factor, 450 * factor)
+	if (type(dialog) == 'table' and dialog.engine == 'webview') or type(dialog) == 'function' then
+		dlg:set_size(scr_w - 40 * factor, 450 * factor)
+	end
 	dlg:add_label(eventtitle)
 	local bids = app.bundles()
 	local appnames = {}
@@ -801,7 +803,9 @@ end
 function choose_apps(eventtitle, actionlabel)
 	local dlg = dialog()
 	dlg:title('选择多个应用')
-	dlg:set_size(scr_w - 40 * factor, 450 * factor)
+	if (type(dialog) == 'table' and dialog.engine == 'webview') or type(dialog) == 'function' then
+		dlg:set_size(scr_w - 40 * factor, 450 * factor)
+	end
 	dlg:add_label(eventtitle)
 	local bids = app.bundles()
 	local appnames = {}
@@ -853,7 +857,9 @@ end
 function choose_action_for_event(eventtitle)
 	local dlg = dialog()
 	dlg:title('为事件创建动作')
-	dlg:set_size(scr_w - 40 * factor, scr_h - 20 * factor)
+	if (type(dialog) == 'table' and dialog.engine == 'webview') or type(dialog) == 'function' then
+		dlg:set_size(scr_w - 40 * factor, scr_h - 20 * factor)
+	end
 	dlg:add_label(eventtitle)
 	dlg:add_range('延迟几毫秒', {0, 10000, 10}, 0)
 	
@@ -966,11 +972,13 @@ function choose_action_for_ui_event(eventtitle)
 	for i, v in ipairs(eventname_list) do
 		eventname_map[v] = i
 	end
-	local ok, s = dialog()
-		:title('选择特征')
-		:set_size(scr_w - 40 * factor, 300 * factor)
-		:add_radio('你需要判断界面上几处特征？', eventname_list)
-	:show()
+	local dlg = dialog()
+	if (type(dialog) == 'table' and dialog.engine == 'webview') or type(dialog) == 'function' then
+		dlg:set_size(scr_w - 40 * factor, 300 * factor)
+	end
+	dlg:title('选择特征')
+	dlg:add_radio('你需要判断界面上几处特征？', eventname_list)
+	local ok, s = dlg:show()
 	if ok then
 		local eventname = s['你需要判断界面上几处特征？']
 		local pos_list = pick_pos_list{size = 10 * 2, corner_radius = 0, count = eventname_map[eventname]}
@@ -1025,11 +1033,13 @@ function on_new_trigger_button_click(msg)
 	local eventname_start = str_fill_wide('当脚本刚开始运行', math.floor((scr_w - 75 * factor) / (5.55555 * factor)))
 	local eventname_enter_ui = str_fill_wide('当进入某个界面', math.floor((scr_w - 75 * factor) / (5.4545 * factor)))
 	local eventname_preview = str_fill_wide('预览或导出结果', math.floor((scr_w - 75 * factor) / (5.4545 * factor)))
-    local ok, s = dialog()
-		:title('创建事件')
-		:set_size(scr_w - 40 * factor, 300 * factor)
-		:add_radio('你想要创建的事件是？', {num_per_line = 1, eventname_start, eventname_enter_ui, eventname_preview})
-	:show()
+	local dlg = dialog()
+	if (type(dialog) == 'table' and dialog.engine == 'webview') or type(dialog) == 'function' then
+		dlg:set_size(scr_w - 40 * factor, 300 * factor)
+	end
+	dlg:title('创建事件')
+	dlg:add_radio('你想要创建的事件是？', {num_per_line = 1, eventname_start, eventname_enter_ui, eventname_preview})
+	local ok, s = dlg:show()
     if ok then
 		local eventname = s['你想要创建的事件是？']
 		if eventname == eventname_start then
