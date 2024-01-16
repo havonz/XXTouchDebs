@@ -418,6 +418,11 @@ end
 return _M
 end
 
+if type(dialog) == 'table' then
+	dialog.engine = 'xui'
+	-- dialog.engine = 'webview'
+end
+
 local scr_w, scr_h = screen.size()
 
 local factor = screen.scale_factor() -- 设备分辨率缩放，通常都是 2x 的了，plus 系列似乎是 3x
@@ -538,6 +543,10 @@ function str_fill_wide(str, wide, pad)
 		out[#out + 1] = pad
 	end
 	return table.concat(out)
+end
+
+function window_wide()
+	
 end
 
 function show_button(info)
@@ -753,7 +762,7 @@ end
 function choose_app(eventtitle, actionlabel)
 	local dlg = dialog()
 	dlg:title('选择一个应用')
-	dlg:set_size(scr_w - 80, 900)
+	dlg:set_size(scr_w - 40 * factor, 450 * factor)
 	dlg:add_label(eventtitle)
 	local bids = app.bundles()
 	local appnames = {}
@@ -792,7 +801,7 @@ end
 function choose_apps(eventtitle, actionlabel)
 	local dlg = dialog()
 	dlg:title('选择多个应用')
-	dlg:set_size(scr_w - 80, 900)
+	dlg:set_size(scr_w - 40 * factor, 450 * factor)
 	dlg:add_label(eventtitle)
 	local bids = app.bundles()
 	local appnames = {}
@@ -844,19 +853,20 @@ end
 function choose_action_for_event(eventtitle)
 	local dlg = dialog()
 	dlg:title('为事件创建动作')
-	dlg:set_size(scr_w - 80, scr_h - 30)
+	dlg:set_size(scr_w - 40 * factor, scr_h - 20 * factor)
 	dlg:add_label(eventtitle)
 	dlg:add_range('延迟几毫秒', {0, 10000, 10}, 0)
-	local actionname_tap = str_fill_wide('点击位置', 58)
-	local actionname_find_tap = str_fill_wide('找到并点击位置', 55)
-	local actionname_slide = str_fill_wide('触摸滑动到', 57)
-	local actionname_run_app = str_fill_wide('启动一个 App', 56)
-	local actionname_quit_app = str_fill_wide('退出一些 App', 56)
-	local actionname_unlock = str_fill_wide('解锁屏幕', 58)
-	local actionname_lock = str_fill_wide('锁定屏幕', 58)
-	local actionname_exit = str_fill_wide('结束脚本', 58)
+	
+	local actionname_tap = str_fill_wide('点击位置', math.floor((scr_w - 75 * factor) / (5.1724 * factor))) -- 600 / 58
+	local actionname_find_tap = str_fill_wide('找到并点击位置', math.floor((scr_w - 75 * factor) / (5.4545 * factor))) -- 600 / 55
+	local actionname_slide = str_fill_wide('触摸滑动到', math.floor((scr_w - 75 * factor) / (5.2631 * factor))) -- 600 / 57
+	local actionname_run_app = str_fill_wide('启动一个 App', math.floor((scr_w - 75 * factor) / (5.3571 * factor))) -- 600 / 56
+	local actionname_quit_app = str_fill_wide('退出一些 App', math.floor((scr_w - 75 * factor) / (5.3571 * factor)))
+	local actionname_unlock = str_fill_wide('解锁屏幕', math.floor((scr_w - 75 * factor) / (5.1724 * factor)))
+	local actionname_lock = str_fill_wide('锁定屏幕', math.floor((scr_w - 75 * factor) / (5.1724 * factor)))
+	local actionname_exit = str_fill_wide('结束脚本', math.floor((scr_w - 75 * factor) / (5.1724 * factor)))
 	dlg:add_radio('你想要创建的动作是？', {num_per_line = 1, actionname_tap, actionname_find_tap, actionname_slide, actionname_run_app, actionname_quit_app, actionname_unlock, actionname_lock, actionname_exit, })
-	local actionname_append_action = str_fill_wide('附加一个动作', 56)
+	local actionname_append_action = str_fill_wide('附加一个动作', math.floor((scr_w - 75 * factor) / (5.3571 * factor)))
 	dlg:add_checkbox('上述动作后附加一个动作', {num_per_line = 1, actionname_append_action})
     local c, s = dlg:show()
 	if c then
@@ -948,9 +958,9 @@ function choose_action_for_event(eventtitle)
 end
 
 function choose_action_for_ui_event(eventtitle)
-	local eventname_ui_spec1 = str_fill_wide('界面上一处特征', 55)
-	local eventname_ui_spec2 = str_fill_wide('界面上两处特征', 55)
-	local eventname_ui_spec3 = str_fill_wide('界面上三处特征', 55)
+	local eventname_ui_spec1 = str_fill_wide('界面上一处特征', math.floor((scr_w - 75 * factor) / (5.4545 * factor)))
+	local eventname_ui_spec2 = str_fill_wide('界面上两处特征', math.floor((scr_w - 75 * factor) / (5.4545 * factor)))
+	local eventname_ui_spec3 = str_fill_wide('界面上三处特征', math.floor((scr_w - 75 * factor) / (5.4545 * factor)))
 	local eventname_list = {num_per_line = 1, eventname_ui_spec1, eventname_ui_spec2, eventname_ui_spec3}
 	local eventname_map = {}
 	for i, v in ipairs(eventname_list) do
@@ -958,7 +968,7 @@ function choose_action_for_ui_event(eventtitle)
 	end
 	local ok, s = dialog()
 		:title('选择特征')
-		:set_size(scr_w - 80, 600)
+		:set_size(scr_w - 40 * factor, 300 * factor)
 		:add_radio('你需要判断界面上几处特征？', eventname_list)
 	:show()
 	if ok then
@@ -985,6 +995,7 @@ function choose_action_for_ui_event(eventtitle)
 			prev[#prev + 1] = img
 		end
 		screen.unkeep()
+		sys.msleep(500)
 		local prevdlg = dialog()
 		prevdlg:title('特征预览')
 		for _,v in ipairs(prev) do
@@ -996,6 +1007,7 @@ function choose_action_for_ui_event(eventtitle)
 			while 1 do
 				action = choose_action_for_event((eventname:gsub('%-', '')))
 				if action == nil then
+					sys.toast('丢弃该特征')
 					return nil
 				elseif action then
 					outt[#outt + 1] = string.format('run = (function()\n%s\nend),', action)
@@ -1010,12 +1022,12 @@ function choose_action_for_ui_event(eventtitle)
 end
 
 function on_new_trigger_button_click(msg)
-	local eventname_start = str_fill_wide('当脚本刚开始运行', 54)
-	local eventname_enter_ui = str_fill_wide('当进入某个界面', 55)
-	local eventname_preview = str_fill_wide('预览或导出结果', 55)
+	local eventname_start = str_fill_wide('当脚本刚开始运行', math.floor((scr_w - 75 * factor) / (5.55555 * factor)))
+	local eventname_enter_ui = str_fill_wide('当进入某个界面', math.floor((scr_w - 75 * factor) / (5.4545 * factor)))
+	local eventname_preview = str_fill_wide('预览或导出结果', math.floor((scr_w - 75 * factor) / (5.4545 * factor)))
     local ok, s = dialog()
 		:title('创建事件')
-		:set_size(scr_w - 80, 600)
+		:set_size(scr_w - 40 * factor, 300 * factor)
 		:add_radio('你想要创建的事件是？', {num_per_line = 1, eventname_start, eventname_enter_ui, eventname_preview})
 	:show()
     if ok then
