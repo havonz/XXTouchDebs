@@ -423,6 +423,10 @@ if type(dialog) == 'table' then
 	-- dialog.engine = 'webview'
 end
 
+function is_webview_dialog()
+	return (type(dialog) == 'table' and dialog.engine == 'webview') or type(dialog) == 'function'
+end
+
 local scr_w, scr_h = screen.size()
 
 local factor = screen.scale_factor() -- 设备分辨率缩放，通常都是 2x 的了，plus 系列似乎是 3x
@@ -543,10 +547,6 @@ function str_fill_wide(str, wide, pad)
 		out[#out + 1] = pad
 	end
 	return table.concat(out)
-end
-
-function window_wide()
-	
 end
 
 function show_button(info)
@@ -762,7 +762,7 @@ end
 function choose_app(eventtitle, actionlabel)
 	local dlg = dialog()
 	dlg:title('选择一个应用')
-	if (type(dialog) == 'table' and dialog.engine == 'webview') or type(dialog) == 'function' then
+	if is_webview_dialog() then
 		dlg:set_size(scr_w - 40 * factor, 450 * factor)
 	end
 	dlg:add_label(eventtitle)
@@ -803,7 +803,7 @@ end
 function choose_apps(eventtitle, actionlabel)
 	local dlg = dialog()
 	dlg:title('选择多个应用')
-	if (type(dialog) == 'table' and dialog.engine == 'webview') or type(dialog) == 'function' then
+	if is_webview_dialog() then
 		dlg:set_size(scr_w - 40 * factor, 450 * factor)
 	end
 	dlg:add_label(eventtitle)
@@ -857,7 +857,7 @@ end
 function choose_action_for_event(eventtitle)
 	local dlg = dialog()
 	dlg:title('为事件创建动作')
-	if (type(dialog) == 'table' and dialog.engine == 'webview') or type(dialog) == 'function' then
+	if is_webview_dialog() then
 		dlg:set_size(scr_w - 40 * factor, scr_h - 20 * factor)
 	end
 	dlg:add_label(eventtitle)
@@ -973,7 +973,7 @@ function choose_action_for_ui_event(eventtitle)
 		eventname_map[v] = i
 	end
 	local dlg = dialog()
-	if (type(dialog) == 'table' and dialog.engine == 'webview') or type(dialog) == 'function' then
+	if is_webview_dialog() then
 		dlg:set_size(scr_w - 40 * factor, 300 * factor)
 	end
 	dlg:title('选择特征')
@@ -1034,7 +1034,7 @@ function on_new_trigger_button_click(msg)
 	local eventname_enter_ui = str_fill_wide('当进入某个界面', math.floor((scr_w - 75 * factor) / (5.4545 * factor)))
 	local eventname_preview = str_fill_wide('预览或导出结果', math.floor((scr_w - 75 * factor) / (5.4545 * factor)))
 	local dlg = dialog()
-	if (type(dialog) == 'table' and dialog.engine == 'webview') or type(dialog) == 'function' then
+	if is_webview_dialog() then
 		dlg:set_size(scr_w - 40 * factor, 300 * factor)
 	end
 	dlg:title('创建事件')
