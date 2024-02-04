@@ -6128,7 +6128,7 @@ sys.toast("完了")
         > - opaque  
             布尔型，可选参数，背景不透明选项，默认为 true 背景不透明  
         > - ignores\_hit  
-            布尔型，可选参数，用于设置忽略（不拦截）触摸事件，默认为 false 不忽略，这个属性在 webview 创建后不能更改  
+            布尔型，可选参数，用于设置忽略（不拦截）触摸事件，默认为 false 不忽略，这个属性在 webview 创建后不能更改，而且 opaque 必须设为 false  
         > - can\_drag  
             布尔型，可选参数，用于设置是否可拖拽移动 webview，默认为 false 不能拖动  
     
