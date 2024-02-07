@@ -927,7 +927,7 @@ XXTouch 使用 [Lua](http://www.lua.org/) 作为脚本语言，支持 [Lua 5.3](
         > **注意：** 如果需要做多分辨率兼容，那么建议是于分辨率最小的设备上截图；大分辨率上的截图会无法在小分辨率设备上找到  
         
     - 示例  
-        [XXT 取色器 1.0.21 Windows 版.7z](https://github.com/havonz/XXTouchDebs/raw/master/%E7%9B%B8%E5%85%B3%E8%B5%84%E6%BA%90/XXT%20%E5%8F%96%E8%89%B2%E5%99%A8%201.0.21%20For%20Windows.7z)
+        [XXT 取色器 1.0.22 Windows 版.7z](https://github.com/havonz/XXTouchDebs/raw/master/%E7%9B%B8%E5%85%B3%E8%B5%84%E6%BA%90/XXT%20%E5%8F%96%E8%89%B2%E5%99%A8%201.0.22%20For%20Windows.7z)
         ```lua
         -- 示例 1（使用 XXT 取色器 Shift + 鼠标左键框选图像上的区域 可直接生成这样的代码）：
         x, y = screen.find_image( -- 原图位置 左上: 354, 274 | 右下: 358, 284
@@ -9836,7 +9836,7 @@ JSON \(JavaScript Object Notation, JS 对象标记\) 是一种轻量级的数据
 
 - Windows 平台工具
     > - [XXT_编辑器-1.387_Windows_版（解压到纯英文路径）.zip](https://github.com/havonz/XXTouchDebs/blob/master/%E7%9B%B8%E5%85%B3%E8%B5%84%E6%BA%90/XXT_%E7%BC%96%E8%BE%91%E5%99%A8-1.387_Windows_%E7%89%88%EF%BC%88%E8%A7%A3%E5%8E%8B%E5%88%B0%E7%BA%AF%E8%8B%B1%E6%96%87%E8%B7%AF%E5%BE%84%EF%BC%89.zip)  
-    > - [XXT 取色器 1.0.21 Windows 版.7z](https://github.com/havonz/XXTouchDebs/raw/master/%E7%9B%B8%E5%85%B3%E8%B5%84%E6%BA%90/XXT%20%E5%8F%96%E8%89%B2%E5%99%A8%201.0.21%20For%20Windows.7z)  
+    > - [XXT 取色器 1.0.22 Windows 版.7z](https://github.com/havonz/XXTouchDebs/raw/master/%E7%9B%B8%E5%85%B3%E8%B5%84%E6%BA%90/XXT%20%E5%8F%96%E8%89%B2%E5%99%A8%201.0.22%20For%20Windows.7z)  
     > - [XXT_局域网集中控制器_2.7.6.4](https://github.com/havonz/XXTouchDebs/blob/master/%E7%9B%B8%E5%85%B3%E8%B5%84%E6%BA%90/XXT_%E5%B1%80%E5%9F%9F%E7%BD%91%E6%8E%A7%E5%88%B6%E5%99%A8_V2.7.6.4.zip)  
     > - ~~XXT 网络授权 1.12.0.1.zip-2397.9kB~~  
     > - ~~大漠综合工具.zip-1520.5kB~~  
