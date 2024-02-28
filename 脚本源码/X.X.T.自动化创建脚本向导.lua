@@ -106,7 +106,7 @@ package.preload["XXTDo"] = function(...)
 local _ENV = table.deep_copy(_ENV)
 local _M = {}
 
-_M._VERSION = '0.5'
+_M._VERSION = '0.6'
 
 local breakloop_tips = '请不要在界面过滤器函数或 XXTDo.runloop 外部执行 XXTDo.breakloop '..string.sub(string.sha256(string.random('0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ', 1000)), 7, 16)
 
@@ -125,7 +125,8 @@ end
 local lfs = require('lfs')
 
 -- 简单数据存取实现
-local homedir = '/private/var/mobile/Media/1ferver/'
+local XXT_HOME_PATH = XXT_HOME_PATH or '/var/mobile/Media/1ferver'
+local homedir = XXT_HOME_PATH..'/'
 local cfgfiledir = homedir..'/uicfg/'
 lfs.mkdir(homedir)
 lfs.mkdir(cfgfiledir)

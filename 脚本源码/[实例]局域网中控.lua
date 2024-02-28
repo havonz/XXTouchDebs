@@ -1,6 +1,7 @@
 local recieve_port = 35452
 local socket = require('socket')
 local device_list = {}		--创建用于储存的列表
+XXT_HOME_PATH = XXT_HOME_PATH or '/var/mobile/Media/1ferver'
 
 local udp_service = socket.udp4()
 udp_service:settimeout(0.05)
@@ -41,7 +42,7 @@ while true do
 		:add_label('Lua 中控演示')
 		:add_radio('操作',{'扫描','启动','停止'})
 		:add_checkbox('设备',tmp_device_name)
-		:add_radio('脚本',file.list('/var/mobile/Media/1ferver/lua/scripts'))
+		:add_radio('脚本',file.list(XXT_HOME_PATH..'/lua/scripts'))
 		:show()
 	if not confirm then break end
 	if selects['操作'] == '扫描' then
@@ -50,7 +51,7 @@ while true do
 		for _, device_name in ipairs(selects['设备']) do
 			local state, headers, body = http.post(
 				'http://' .. tmp_device_id[device_name]['ip'] .. ':46952/spawn',
-				5, {}, file.reads('/var/mobile/Media/1ferver/lua/scripts/' .. selects['脚本'])
+				5, {}, file.reads(XXT_HOME_PATH..'/lua/scripts/' .. selects['脚本'])
 			)
 			if state == 200 then
 				local receive_json = json.decode(body)
