@@ -1,6 +1,10 @@
 # XXTColorPicker 使用说明
 此文档只针对 XXTColorPicker 当前的最新版本
 
+## 注意
+iPhone 7 及以上 iOS 设备使用系统自带的截图快捷键截的图片  
+直接用 XXTColorPicker 打开颜色有偏差，需要 [转换格式](Batch-DisplayP3-to-sRGB.zip) 使用
+
 ## 通用  
 
 - ### 截图保存路径  
