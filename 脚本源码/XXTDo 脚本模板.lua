@@ -17,8 +17,23 @@ local XXTDo = (function()
 	local jbroot = jbroot or function(path) return path end
 	local XXT_HOME_PATH = XXT_HOME_PATH or jbroot('/var/mobile/Media/1ferver')
 
+	local function gh_get(info)
+		local url_buf = {'https://raw.githubusercontent.com'}
+		url_buf[#url_buf + 1] = info.username
+		url_buf[#url_buf + 1] = info.repo
+		url_buf[#url_buf + 1] = info.branch or 'master'
+		url_buf[#url_buf + 1] = info.path
+		local get = info.get or http.get
+		local url = table.concat(url_buf, '/')
+		return get(url, 60)
+	end
+
 	while 1 do
-		local c, h, r = http.get('https://raw.githubusercontent.com/havonz/XXTouchDebs/refs/heads/master/脚本源码/XXTDo.lua', 30, {})
+		local c, _, r = gh_get{
+			username = 'havonz',
+			repo = 'XXTouchDebs',
+			path = '脚本源码/XXTDo.lua',
+		}
 		if c == 200 then
 			file.writes(XXT_HOME_PATH..'/lua/XXTDo.lua', r)
 			local ok, XXTDo  = pcall(require, 'XXTDo')
