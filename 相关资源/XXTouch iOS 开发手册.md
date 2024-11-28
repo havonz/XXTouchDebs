@@ -282,6 +282,60 @@ XXTouch 使用 [Lua](http://www.lua.org/) 作为脚本语言，支持 [Lua 5.3](
         -- 将 print 缓冲区内容发回开发开发工具的日志窗
         nLog(print.out())
         ```
+
+
+
+---
+<br />
+
+- ### 获取系统根路径对应的越狱根路径 (**jbroot**)
+    - 声明  
+        ```lua
+        越狱根路径 = jbroot(系统根路径)
+        ```
+    
+    - 参数及返回值  
+        > - 系统根路径  
+            文本型，系统根路径  
+        > - 越狱根路径  
+            文本型，参数 `系统根路径` 对应的 `越狱根路径`  
+    
+    - 说明  
+        > 在 roothide 及 rootless 环境中，该函数返回一个绝对路径访问越狱根中的指定路径  
+        > 在 rootful 环境中，该函数将直接返回传入的那个参数  
+        > **软件版本在 1.3.8 或以上方可使用**  
+        
+    - 示例  
+        ```lua
+        nLog(jbroot('/')) -- /var/containers/Bundle/Application/.jbroot-XXXXXXXXXXXXXXXX/
+        ```
+
+
+
+---
+<br />
+
+- ### 获取越狱根对应的系统根路径 (**rootfs**)
+    - 声明  
+        ```lua
+        系统根路径 = rootfs(越狱根路径)
+        ```
+    
+    - 参数及返回值  
+        > - 越狱根路径  
+            文本型，路径  
+        > - 系统根路径  
+            文本型，参数 `越狱根路径` 对应的 `系统根路径`  
+    
+    - 说明  
+        > 在 roothide 及 rootless 环境中，该函数用于将 jbroot 函数的结果转换回去  
+        > 在 rootful 环境中，该函数将直接返回传入的那个参数  
+        > **软件版本在 **软件版本在 1.3.8 或以上方可使用** 或以上方可使用**  
+        
+    - 示例  
+        ```lua
+        nLog(rootfs('/var/containers/Bundle/Application/.jbroot-XXXXXXXXXXXXXXXX/')) -- /
+        ```
     
     
 
@@ -835,36 +889,97 @@ XXTouch 使用 [Lua](http://www.lua.org/) 作为脚本语言，支持 [Lua 5.3](
 - ### 屏幕区域文字识别 (**screen\.ocr\_text**)
     - 声明  
         ```lua
-        识别结果, 结果详情 = screen.ocr_text(左, 上, 右, 下 [, 结果范围, 二值化选项 ])
+        识别结果, 结果详情 = screen.ocr_text(左, 上, 右, 下 [, 引擎选项, 二值化选项 ])
         ```
     
     - 参数及返回值  
-        > - 左, 上, 右, 下  
-            整数型，代表识别区域  
-        > - 结果范围  
-            * 可以是 文本型 或 表型 参数  
-               详情可参考 [对图片进行 ocr 识别](#tesseract\-对图片进行\-ocr\-识别\-tessocr)  
-        > - 二值化选项 \*1\.1\.0\-1 新增  
+        - 左, 上, 右, 下  
+            整数型，用于表示屏幕上的区域, 传入 `0, 0, 0, 0` 代表全屏  
+        - 引擎选项  
+            可选参数，用于选择识别语言及识别引擎  
+            <details><summary>展开结构</summary>
+
+            ```lua
+            {
+                -- 如果将 engine 字段设为 "apple"，则使用 iOS 13 以上苹果自带的 Vision.framework 进行识别
+                -- 你可以使用 image.vision_supported_recognition_languages() 函数获取 Vision.framework 支持的 OCR 模型列表
+                -- 如果将 engine 字段设为 "paddle"，则使用 Paddle-Lite 引擎识别。可使用 lang 指定模型，例如 lang = "ppocr_ch" 则使用模型 /var/mobile/Media/1ferver/models/ppocr_ch
+                -- Paddle-Lite 引擎支持 *.nb 格式的 Slim 模型
+                engine = "apple" | "paddle" | "tesseract",
+                lang = "zh-Hans",
+            }
+            ```
+            </details>
+            <details><summary>各版本 iOS 内置的 Vision.framework 支持的 OCR 模型列表</summary>
+
+            ```lua
+            { -- iOS 13
+                [1] = "en-US",
+            }
+
+            { -- iOS 14~15
+                [1] = "en-US",
+                [2] = "fr-FR",
+                [3] = "it-IT",
+                [4] = "de-DE",
+                [5] = "es-ES",
+                [6] = "pt-BR",
+                [7] = "zh-Hans",
+                [8] = "zh-Hant",
+            }
+
+            { -- iOS 16
+                [ 1] = "en-US",
+                [ 2] = "fr-FR",
+                [ 3] = "it-IT",
+                [ 4] = "de-DE",
+                [ 5] = "es-ES",
+                [ 6] = "pt-BR",
+                [ 7] = "zh-Hans",
+                [ 8] = "zh-Hant",
+                [ 9] = "yue-Hans",
+                [10] = "yue-Hant",
+                [11] = "ko-KR",
+                [12] = "ja-JP",
+                [13] = "ru-RU",
+                [14] = "uk-UA",
+            }
+            ```
+            </details>
+        - 二值化选项  
             * 可以是 实数型 或 文本型 或 表型 参数，分别代表  
                 实数型，二值化阈值，可参考 [图片自动二值化](#opencv\-图片自动二值化\-cvbinaryzation)  
                 表型，自定义二值化色偏，参考 [图片手动二值化](#二值化处理图片对象\-binaryzation)  
                 文本型，自定义二值化色偏，参考 [图片手动二值化](#二值化处理图片对象\-binaryzation)  
-        > - 识别结果  
+        - 识别结果  
             文本型，识别返回的文字  
-        > - 结果详情 \*1\.1\.3\-1 新增  
-            表型，识别结果的每个可见字符的位置描述  
+        - 结果详情 \*1\.1\.3\-1 新增  
+            表型，OCR 识别的结果的详情  
+            <details><summary>展开结构</summary>
+
+            ```lua
+            {
+                {
+                    ["y"] = number_value,
+                    ["x"] = number_value,
+                    ["w"] = number_value,
+                    ["h"] = number_value,
+                    ["confidence"] = number_value(0.0000 ~ 1.0000),
+                    ["text"] = string_value,
+                },
+                ...
+            }
+            ```
+            </details>
     
     - 说明  
         > 识别屏幕区域上的文字，该函数会引用 image\.tess_ocr 模块  
         > 内置 OCR 识别库引擎为 tesseract 3\.02 版，版本不对或者字库文件损坏会导致 XXTouch 脚本服务崩溃  
-        > 这里提供适用于 XXTouch 的 tesseract 引擎版本为 3\.05 版的 OCR 识别库 [tess_ocr_1.2_with_tesseract_3.05.01.zip-1853.9kB（点击下载）][1]  
         > XXTouch 已内置 eng 识别库 \[A\-Za\-z0\-9\] 能识别常规英文和数字  
         > 如果需要做简体中文或是其它语言文字识别  
         > 需要手动导入相关的字库文件到设备的 `/var/mobile/Media/1ferver/tessdata/` 目录  
         > 这里提供 [简体中文字库（点击下载）](https://github.com/havonz/XXTouchDebs/blob/master/%E7%9B%B8%E5%85%B3%E8%B5%84%E6%BA%90/chi_sim.traineddata.gz)  
-        > **`二值化选项` 手动二值化在 1\.1\.0\-1 版以上方可使用**  
-        > **`结果详情` 在 1\.1\.3\-1 版以上方可使用**  
-        > 如果想自己进行 tesseract 字库训练可以 [百度搜索“tesseract 训练”](https://www.baidu.com/s?wd=tesseract%20训练)  
+        > **软件版本在 1.3.8 以上方支持 Apple 和 PaddleLite 识别引擎** 
         
     - 示例  
         ```lua
@@ -893,6 +1008,21 @@ XXTouch 使用 [Lua](http://www.lua.org/) 作为脚本语言，支持 [Lua 5.3](
           white_list = "1234567890",      -- 自定义使用白名单限制仅识别为数字
         }, "9D5D39-0F1F26,D3D3D2-2C2C2D") -- 使用色偏二值化识别
         sys.toast("识别结果："..txt:atrim())
+
+        -- 1.3.8 以上示例
+        txt, info = screen.ocr_text(187, 882, 298, 914, {
+            engine = "apple", -- 使用 Apple 引擎
+            lang = "zh-Hans"  -- 使用简体中文识别模型
+        })
+
+        txt, info = screen.ocr_text(187, 882, 298, 914, {
+            lang = "zh-Hans" -- 默认会尝试搜索是否是 Apple 引擎支持的模型
+        }, "9D5D39-0F1F26,D3D3D2-2C2C2D")
+
+        txt, info = screen.ocr_text(0, 0, 0, 0, {
+            engine = "paddle", -- 使用 PaddleLite OCR 引擎
+            lang = "ppocr_ch", -- 使用 ppocr_ch 模型
+        })
         ```
         **注**：上述代码中使用了非本章函数 [`sys.toast`](#显示提示文字\-systoast)、[`string.atrim`](#去除文本中所有的空白字符-stringatrim)
 
@@ -2096,6 +2226,29 @@ XXTouch 使用 [Lua](http://www.lua.org/) 作为脚本语言，支持 [Lua 5.3](
         ```lua
         sys.alert('当前 XXTouch 版本：'..sys.xtversion())
         ```
+        ```
+
+
+
+---
+<br />
+
+- ### 获取 CoreFoundation 版本 (**sys.cfversion**)
+    - 声明  
+        ```lua
+        版本号 = sys.cfversion()
+        ```
+    
+    - 参数及返回值  
+        > - 版本号  
+            文本型，返回 CoreFoundation 版本号  
+    - 说明
+        > **软件版本在 1.3.8 或以上方可使用**  
+
+    - 示例  
+        ```lua
+        sys.alert('当前 CoreFoundation 版本：'..sys.cfversion())
+        ```
 
 
 
@@ -3085,26 +3238,149 @@ XXTouch 使用 [Lua](http://www.lua.org/) 作为脚本语言，支持 [Lua 5.3](
 ---
 <br />
 
-- ### Get plug-in information for the app (**app\.plugin\_info**)
-    - Declaration  
+- ### 获取 App 应用插件信息 (app.plugin_info)
+    - 声明
+        - `plugin_info` = app.plugin_info(`bundle_id`)
+
+    - 参数
+        - `bundle_id` : `string`
+
+    - 返回值
+        - `plugin_info` : `table`
+
+    - 说明
+        > **软件版本在 1.3.8 或以上方可使用**
+
+    - 示例
         ```lua
-        plugin_info = app.plugin_info(bid)
-        ```
-    
-    - Parameters and return values  
-        > - bid  
-            text, App's Bundle Identifier  
-        > - plugin_info  
-            table, Returns application plug-in information  
-    
-    - Explanation  
-        > **XXTouch version 1.3.8-1 or above can be used**  
-        
-    - Example  
-        ```lua
-        info = app.plugin_info("com.tencent.mqq")
+        nLog(app.plugin_info('com.apple.Preferences'))
         ```
 
+
+
+---
+<br />
+
+- ### 获取 App 打开的文件 (app.lsof)
+    - 声明
+        - `ofs`, `error_msg` = app.lsof(`bid_or_pid`)
+
+    - 说明
+        - 列出指定 App 打开的文件描述符及 socket 描述符
+            > **软件版本在 1.3.8 或以上方可使用**
+
+    - 参数
+        - `bid_or_pid` : `string | integer`
+
+    - 返回值
+        - `ofs` : `table | nil`  
+            成功返回一个特定结构的表，失败返回 nil <details><summary>展开结构</summary>
+
+            ```lua
+            {
+                opensockets = {
+                    {
+                        fd = integer_value,
+                        kind = "TCP" | "IN",
+                        ["local"] = {
+                            address = string_value,
+                            port = integer_value,
+                        },
+                        ["remote"] = {
+                            address = string_value,
+                            port = integer_value,
+                        },
+                    },
+                    ...
+                },
+                openfiles = {
+                    {
+                        fd = integer_value,
+                        path = string_value,
+                    },
+                    ...
+                },
+            }
+            ```
+            </details>
+        - `error_msg` : `string | nil`  
+            如果执行失败，则这个返回值为失败文本描述
+
+    - 示例
+        ```lua
+        nLog(app.lsof('com.apple.Preferences'))
+        ```
+
+
+
+---
+<br />
+
+- ### 设置 App 的 TCC 权限 (app.set_tcc)
+    - 声明
+        - `success`, `orig_auth_value` = app.set_tcc(`bundle_id`, `service_id`, `auth_value`)
+
+    - 参数
+        - `bundle_id` : `string`  
+        - `service_id` : `string`  
+            <details><summary>TCC 服务 ID 列表</summary>
+
+            ```lua
+            kTCCServiceAccessibility
+            kTCCServiceAddressBook
+            kTCCServiceAppleEvents
+            kTCCServiceCalendar
+            kTCCServiceCamera
+            kTCCServiceContactsFull
+            kTCCServiceContactsLimited
+            kTCCServiceDeveloperTool
+            kTCCServiceFacebook
+            kTCCServiceLinkedIn
+            kTCCServiceListenEvent
+            kTCCServiceLiverpool
+            kTCCServiceLocation
+            kTCCServiceMediaLibrary
+            kTCCServiceMicrophone
+            kTCCServiceMotion
+            kTCCServicePhotos
+            kTCCServicePhotosAdd
+            kTCCServicePostEvent
+            kTCCServiceReminders
+            kTCCServiceScreenCapture
+            kTCCServiceShareKit
+            kTCCServiceSinaWeibo
+            kTCCServiceSiri
+            kTCCServiceSpeechRecognition
+            kTCCServiceSystemPolicyAllFiles
+            kTCCServiceSystemPolicyDesktopFolder
+            kTCCServiceSystemPolicyDeveloperFiles
+            kTCCServiceSystemPolicyDocumentsFolder
+            kTCCServiceSystemPolicyDownloadsFolder
+            kTCCServiceSystemPolicyNetworkVolumes
+            kTCCServiceSystemPolicyRemovableVolumes
+            kTCCServiceSystemPolicySysAdminFiles
+            kTCCServiceTencentWeibo
+            kTCCServiceTwitter
+            kTCCServiceUbiquity
+            kTCCServiceWillow
+            kTCCServicePasteboard
+            ```
+            </details>
+
+        - `auth_value` : `integer`  
+            设置 `auth_value` 为 `-1` 删除 `bundle_id` 这个应用的 TCC 权限  
+
+    - 返回值
+        - `success` : `boolean`  
+        - `orig_auth_value` : `integer`  
+
+    - 说明  
+        > **软件版本在 1.3.8 或以上方可使用**  
+
+    - 示例
+        ```lua
+        app.set_tcc("com.apple.SafariViewService", "kTCCServicePasteboard", 2)
+        ```
 
 
 ---
@@ -4529,6 +4805,38 @@ Process Identifier（进程标识符）为应用运行期的进程号，是个�
         device.join_wifi('Tenda_9B3F', '123456', 1)
         ```
 
+
+
+---
+<br />
+
+- ### 获取当前 Wi-Fi 的信息 (device.wifi_info)
+    - 声明
+        - `wifi_info` = device.wifi_info()
+
+    - 返回值
+        - `wifi_info` : `table | nil`  
+            <details><summary>展开结构</summary>
+
+            ```lua
+            {
+                SSID = string_value,
+                BSSID = string_value,
+                hidden = boolean_value,
+                encryption = string_value,
+                password = string_value,
+                channel = integer_value,
+            }
+            ```
+            </details>
+
+    - 说明
+        > **软件版本在 1.3.8 或以上方可使用**
+
+    - 示例
+        ```lua
+        nLog(device.wifi_info())
+        ```
 
 
 ---
@@ -6082,6 +6390,8 @@ sys.toast("完了")
 
 ## Web 视图模块（webview）
 
+webview 模块在 iOS 16 以上已无法使用  
+
 - ### 展现一个 webview (**webview.show**)
     - 声明  
         ```lua
@@ -6135,6 +6445,7 @@ sys.toast("完了")
     - 说明  
         > 让 webview 以参数设置的那样出现  
         > 除了 html 参数会保持上一次 show 的状态，其它参数一律会在调用时重设成默认值  
+        > iOS 16 以上已不能使用  
         
     - 示例  
         [`本章结尾`](#webview\-使用示例)
@@ -6181,6 +6492,7 @@ sys.toast("完了")
     
     - 说明  
         > 在一个 webview 上执行一段 JS 并获得返回值文字  
+        > iOS 16 以上已不能使用  
         
     - 示例  
         ```lua
@@ -8005,7 +8317,7 @@ JSON \(JavaScript Object Notation, JS 对象标记\) 是一种轻量级的数据
 ---
 <br />
 
-- ### 打开扫码器 (**utils\.open\_code\_scanner**)
+- ### ~~打开扫码器 (**utils\.open\_code\_scanner**)~~
     - 声明  
         ```lua
         打开成败 = utils.open_code_scanner()
@@ -8086,7 +8398,7 @@ JSON \(JavaScript Object Notation, JS 对象标记\) 是一种轻量级的数据
 ---
 <br />
 
-- ### 关闭扫码器 (**utils\.close\_code\_scanner**)
+- ### ~~关闭扫码器 (**utils\.close\_code\_scanner**)~~
     - 声明  
         ```lua
         utils.close_code_scanner()
@@ -8094,6 +8406,7 @@ JSON \(JavaScript Object Notation, JS 对象标记\) 是一种轻量级的数据
     
     - 说明  
         > 关闭条码/二维码扫描器  
+        > iOS 9 以上不再有效  
         
     - 示例  
         [`utils.open_code_scanner 示例`](#打开扫码器-utilsopencodescanner)
@@ -8228,6 +8541,26 @@ JSON \(JavaScript Object Notation, JS 对象标记\) 是一种轻量级的数据
     - 示例  
         ```lua
         utils.video_to_album("/var/mobile/1.mp4")
+        ```
+
+
+
+---
+<br />
+
+- ### 生成一个 UUID (**utils.gen_uuid**)
+    - 声明
+        - `uuid` = utils.gen_uuid()
+
+    - 返回值
+        - `uuid` : `string`  
+
+    - 说明
+        > **软件版本在 1.3.8 或以上方可使用**  
+
+    - 示例
+        ```lua
+        nLog(utils.gen_uuid())
         ```
 
 
