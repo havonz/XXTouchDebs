@@ -44,7 +44,9 @@ XXTouch 使用 [Lua](http://www.lua.org/) 作为脚本语言，支持 [Lua 5.3](
 - 资源存放目录为 `/var/mobile/Media/1ferver/res/`
 - 日志存放目录为 `/var/mobile/Media/1ferver/log/`
 - 文字识别字库存放目录为 `/var/mobile/Media/1ferver/tessdata/`
+- 文字识别推理模型存放目录为 `/var/mobile/Media/1ferver/models/`
 - 内置脚本模块存放目录为 `/var/mobile/Media/1ferver/lua/`
+- 无根越狱可能需要 [jbroot](#获取系统根路径对应的越狱根路径-jbroot) 来获取路径
 
 
 
@@ -2225,7 +2227,6 @@ XXTouch 使用 [Lua](http://www.lua.org/) 作为脚本语言，支持 [Lua 5.3](
     - 示例  
         ```lua
         sys.alert('当前 XXTouch 版本：'..sys.xtversion())
-        ```
         ```
 
 
