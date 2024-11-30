@@ -46,6 +46,25 @@ local XXTDo = (function()
 	end
 end)()
 
+function get_poscolors_rect(poscolors)
+	local minx, miny, maxx, maxy = 99999, 99999, 0, 0
+	for i,pc in ipairs(poscolors) do
+		if pc[1] >= maxx then
+			maxx = pc[1]
+		end
+		if pc[2] >= maxy then
+			maxy = pc[2]
+		end
+		if pc[1] <= minx then
+			minx = pc[1]
+		end
+		if pc[2] <= miny then
+			miny = pc[2]
+		end
+	end
+	return minx, miny, maxx, maxy
+end
+
 XXTDo.runloop {
 
 	name = '只是一个开心的脚本',
@@ -54,7 +73,20 @@ XXTDo.runloop {
 	log_date = false,
 	error = error,
 
-	filter = screen.is_colors,
+	-- filter = screen.is_colors,
+	filter = function (poscolors, csim)
+		local edge = 5
+		if type(poscolors._rect) ~= 'table' then
+			poscolors._rect = {get_poscolors_rect(poscolors)}
+		end
+		local minx, miny, maxx, maxy = table.unpack(poscolors._rect)
+		if minx == 99999 then
+			error('What the ?')
+		end
+		local x, y = screen.find_color(poscolors, csim, minx - edge, miny - edge, maxx + edge, maxy + edge)
+		return x ~= -1
+	end,
+
 	csim = 90,
 
 	pre_run = function(_P)

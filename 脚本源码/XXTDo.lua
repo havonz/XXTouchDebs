@@ -191,7 +191,7 @@ function _M.runloop(orig_uilist)
 					return 'breakloop'
 				end
 				_L.error(_dumpvarshort{
-					error = errmsg,
+					error = string.format("界面循环 %s 发生运行期错误\n%s", _L.loopname, errmsg),
 					time = _datetime(),
 					UI = UI,
 				}, 3)
