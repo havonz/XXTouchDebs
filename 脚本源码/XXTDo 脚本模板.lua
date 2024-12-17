@@ -93,8 +93,8 @@ XXTDo.runloop {
 		_P.log('一轮新的判断开始')
 	end,
 
-	post_run = function(_P, matched)
-		_P.log('本轮判断结束，匹配到的界面是：'..(type(matched) == 'table' and matched.name or '(无)'))
+	post_run = function(_P, matched_info)
+		_P.log('本轮判断结束，匹配到的界面是：'..(type(matched_info) == 'table' and matched_info.ui.name or '(无)'))
 	end,
 
 	else_run = function(_P)

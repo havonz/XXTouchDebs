@@ -74,7 +74,7 @@
 local _ENV = table.deep_copy(_ENV)
 local _M = {}
 
-_M._VERSION = '0.6'
+_M._VERSION = '0.7'
 
 local breakloop_tips = '请不要在界面过滤器函数或 XXTDo.runloop 外部执行 XXTDo.breakloop '..string.sub(string.sha256(string.random('0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ', 1000)), 7, 16)
 
@@ -370,14 +370,17 @@ function _M.runloop(orig_uilist)
 			_L.timer_last_found = _L.timer_current_found
 			_L.timer_begin_time = os.time()
 		elseif (_L.timeout_s > 0 and os.difftime(os.time(), _L.timer_begin_time) > _L.timeout_s) then
-			_L.log(string.format('%s%s 未匹配任何界面超时', _log_datetime_gen(), _L.loopname))
-			local timeout_run_results = _callifexists('global_timeout_run', _L.timeout_run, uilist, foundui)
-			_L.log(string.format('%s%s 超时回调返回 %s', _log_datetime_gen(), _L.loopname, timeout_run_results))
-			if (timeout_run_results == 'success') then
-				_L.timer_begin_time = os.time()
-			elseif (timeout_run_results == 'breakloop') then
-				_L.log(string.format('%s从 未匹配任何界面的全局 超时回调跳出界面匹配循环 %s', _log_datetime_gen(), _L.loopname))
-				return to_finally()
+			local matched_ui_has_timeout_s = type(foundui) == 'table' and type(foundui.ui) == 'table' and (tonumber(foundui.ui.timeout_s) or 0) > 0
+			if not matched_ui_has_timeout_s then -- 超时所在界面的超时配置优先权高于全局超时配置
+				_L.log(string.format('%s%s 未匹配任何界面超时', _log_datetime_gen(), _L.loopname))
+				local timeout_run_results = _callifexists('global_timeout_run', _L.timeout_run, uilist, foundui)
+				_L.log(string.format('%s%s 超时回调返回 %s', _log_datetime_gen(), _L.loopname, timeout_run_results))
+				if (timeout_run_results == 'success') then
+					_L.timer_begin_time = os.time()
+				elseif (timeout_run_results == 'breakloop') then
+					_L.log(string.format('%s从 未匹配任何界面的全局 超时回调跳出界面匹配循环 %s', _log_datetime_gen(), _L.loopname))
+					return to_finally()
+				end
 			end
 		end
 		sys.msleep(_current_interval_ms)
