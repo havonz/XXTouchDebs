@@ -761,7 +761,7 @@ function rect_to_edges(rect)
 end
 
 -- 以上是封装
-if been_require or is_being_required then
+if true then
 	return {
 		new_text_label = new_text_label,
 		new_image_label = new_image_label,
