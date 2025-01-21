@@ -9,6 +9,12 @@
 	-- iOS 13.2 以上可以在安全模式下使用，并且支持 secure 属性
 	-- 阅读源码需要有 Objective-C 和 Lua 基础
 
+	-- 2025-01-21 版本更新 0.2：
+	-- 为所有控件添加了 orientation 属性，可以设置控件的参考坐标系，0 - 竖屏 Home 在下，1 - 横屏 Home 在右，2 - 横屏 Home 在左，3 - 竖屏 Home 在上
+
+	-- 2025-01-03 版本更新 0.1：
+	-- 发布第一个版本
+
 	-- 引用 static_view 模块
 	local static_view = require('static_view')
 
@@ -20,6 +26,7 @@
 		y = 231,          -- 可选参数，可读写属性，左上角纵坐标，默认 0
 		size = 2,         -- 可选参数，可读写属性，边框粗细尺寸，默认 2
 		color = 0xFF0000, -- 可选参数，可读写属性，边框颜色，默认 0xFF0000
+		orientation = 0,  -- 可选参数，可读写属性，参考坐标系方向，0 - 竖屏 Home 在下，1 - 横屏 Home 在右，2 - 横屏 Home 在左，3 - 竖屏 Home 在上，默认为 screen.init 初始化的那个方向
 		secure = false,   -- 可选参数，只读属性，为 true 则截屏录屏取色会忽略这个视图，默认为 false
 	}
 
@@ -46,6 +53,7 @@
 		text_color = 0xFF0000,    -- 可选参数，可读写属性，文本颜色，默认 0xFF0000
 		font_name = 'Helvetica',  -- 可选参数，可读写属性，文本字体，默认 'Helvetica'
 		font_size = 12,           -- 可选参数，可读写属性，文本字体尺寸，默认 12
+		orientation = 0,          -- 可选参数，可读写属性，参考坐标系方向，0 - 竖屏 Home 在下，1 - 横屏 Home 在右，2 - 横屏 Home 在左，3 - 竖屏 Home 在上，默认为 screen.init 初始化的那个方向
 		secure = false,           -- 可选参数，只读属性，为 true 则截屏录屏取色会忽略这个视图，默认为 false
 	}
 
@@ -71,6 +79,7 @@
 		height = 143,     -- 可读写属性，方框高度
 		x = 45,           -- 可选参数，可读写属性，左上角横坐标，默认 0
 		y = 231,          -- 可选参数，可读写属性，左上角纵坐标，默认 0
+		orientation = 0,  -- 可选参数，可读写属性，参考坐标系方向，0 - 竖屏 Home 在下，1 - 横屏 Home 在右，2 - 横屏 Home 在左，3 - 竖屏 Home 在上，默认为 screen.init 初始化的那个方向
 		secure = false,   -- 可选参数，只读属性，为 true 则截屏录屏取色会忽略这个视图，默认为 false
 	}
 
@@ -239,6 +248,24 @@ end
 
 local toast_service_run_script = toast_service_run_script
 
+local function rect_rotate90(x, y, width, height, orientation)
+	if orientation < 0 then
+		orientation = 0
+	elseif orientation > 3 then
+		orientation = orientation % 4
+	end
+	if orientation ~= 0 then
+		local left, top, right, bottom = x, y, x + width - 1, y + height - 1
+		left, top = screen.unrotate_xy(left, top, orientation)
+		right, bottom = screen.unrotate_xy(right, bottom, orientation)
+		x = math.min(left, right)
+		width = math.abs(right - left) + 1
+		y = math.min(top, bottom)
+		height = math.abs(bottom - top) + 1
+	end
+	return x, y, width, height, orientation
+end
+
 function new_rectangle_border(...)
 	local tab = check_value(1, 'table', ...)
 	local width = check_value_ex('new_rectangle_border', 1, '(.width)', 'number', tab.width)
@@ -249,6 +276,7 @@ function new_rectangle_border(...)
 	local color = opt_value_ex('new_rectangle_border', 1, '(.color)', 'number', 0xFFFFFF, tab.color)
 	local duration = opt_value_ex('new_rectangle_border', 1, '(.duration)', 'number', 0, tab.duration)
 	local secure = opt_value_ex('new_rectangle_border', 1, '(.secure)', 'boolean', false, tab.secure)
+	local orientation = opt_value_ex('new_rectangle_border', 1, '(.orientation)', 'integer', screen.current_init_orien(), tab.orientation)
 
 	local has_been_destroyed = false
 
@@ -261,8 +289,11 @@ function new_rectangle_border(...)
 		width = width,
 		height = height,
 		secure = secure,
+		orientation = orientation,
 		screen_scale = screen.scale_factor(),
 	}
+
+	props.real_x, props.real_y, props.real_width, props.real_height, props.orientation = rect_rotate90(props.x, props.y, props.width, props.height, props.orientation)
 
 	local refresh_the_rectangle_border = function(self, ...)
 		local duration = opt_value_ex(':refresh', 1, '(duration)', 'number', 0, ...)
@@ -271,7 +302,7 @@ function new_rectangle_border(...)
 			local objc = require('objc')
 			local ffi = require('ffi')
 			dispatch_sync('main', function()
-				local frame = CGRectMake(props.x // props.screen_scale, props.y // props.screen_scale, props.width // props.screen_scale, props.height // props.screen_scale)
+				local frame = CGRectMake(props.real_x // props.screen_scale, props.real_y // props.screen_scale, props.real_width // props.screen_scale, props.real_height // props.screen_scale)
 				local border
 				if borderMap[props.uuid] then
 					border = borderMap[props.uuid]
@@ -361,6 +392,7 @@ function new_rectangle_border(...)
 			field = string.lower(field)
 			if setter_type[field] and type(value) == setter_type[field] then
 				props[field] = value
+				props.real_x, props.real_y, props.real_width, props.real_height, props.orientation = rect_rotate90(props.x, props.y, props.width, props.height, props.orientation)
 			else
 				error('The rectangle_border object has no such (' .. type(value) ..') field named `' .. field .. '`', 2)
 			end
@@ -382,6 +414,7 @@ function new_text_label(...)
 	local text_color = opt_value_ex('new_text_label', 1, '(.text_color)', 'number', 0xFFFFFF, tab.text_color)
 	local duration = opt_value_ex('new_text_label', 1, '(.duration)', 'number', 0, tab.duration)
 	local secure = opt_value_ex('new_text_label', 1, '(.secure)', 'boolean', false, tab.secure)
+	local orientation = opt_value_ex('new_text_label', 1, '(.orientation)', 'integer', screen.current_init_orien(), tab.orientation)
 
 	local has_been_destroyed = false
 
@@ -394,6 +427,7 @@ function new_text_label(...)
 		x = x,
 		y = y,
 		secure = secure,
+		orientation = orientation,
 		screen_scale = screen.scale_factor(),
 	}
 
@@ -420,6 +454,7 @@ function new_text_label(...)
 		local size = text.sizeWithFont(font).constrainedToSize(CGSizeMake(0xFFFFFFFF, 0xFFFFFFFF)).lineBreakMode(0)()
 		props.width = size.width * props.screen_scale
 		props.height = size.height * props.screen_scale
+		props.real_x, props.real_y, props.real_width, props.real_height, props.orientation = rect_rotate90(props.x, props.y, props.width, props.height, props.orientation)
 	end)
 
 	local refresh_the_text_label = function(self, ...)
@@ -430,7 +465,7 @@ function new_text_label(...)
 			local ffi = require('ffi')
 			local font = objc.UIFont.fontWithName(props.font_name).size(props.font_size)()
 			dispatch_sync('main', function()
-				local frame = CGRectMake(props.x // props.screen_scale, props.y // props.screen_scale, props.width // props.screen_scale, props.height // props.screen_scale)
+				local frame = CGRectMake(props.real_x // props.screen_scale, props.real_y // props.screen_scale, props.real_width // props.screen_scale, props.real_height // props.screen_scale)
 				local textLabel
 				if textLabelMap[props.uuid] then
 					textLabel = textLabelMap[props.uuid]
@@ -451,6 +486,13 @@ function new_text_label(...)
 				end
 				textLabel.setHidden(false)()
 				objc.UIView.animateWithDuration(duration).animations(oneTimeBlock(function()
+					if props.orientation == 1 then
+						textLabel.transform = CGAffineTransformMakeRotation(90 * (math.pi / 180.0))
+					elseif props.orientation == 2 then
+						textLabel.transform = CGAffineTransformMakeRotation(270 * (math.pi / 180.0))
+					elseif props.orientation == 3 then
+						textLabel.transform = CGAffineTransformMakeRotation(180 * (math.pi / 180.0))
+					end
 					textLabel.setFrame(frame)()
 					textLabel.backgroundColor = objc.UIColor.clearColor()
 					textLabel.font = font
@@ -505,12 +547,16 @@ function new_text_label(...)
 		text_color = 'number',
 		x = 'number',
 		y = 'number',
+		orientation = 'number',
 	}
 
 	local setter_actions = {
 		text = compute_label_size,
 		font_name = compute_label_size,
 		font_size = compute_label_size,
+		x = compute_label_size,
+		y = compute_label_size,
+		orientation = compute_label_size,
 	}
 
 	return setmetatable({}, {
@@ -557,6 +603,7 @@ function new_image_label(...)
 	local y = opt_value_ex('new_image_label', 1, '(.y)', 'number', 0, tab.y)
 	local duration = opt_value_ex('new_image_label', 1, '(.duration)', 'number', 0, tab.duration)
 	local secure = opt_value_ex('new_image_label', 1, '(.secure)', 'boolean', false, tab.secure)
+	local orientation = opt_value_ex('new_image_label', 1, '(.orientation)', 'integer', screen.current_init_orien(), tab.orientation)
 
 	local the_image = img:copy()
 
@@ -568,8 +615,11 @@ function new_image_label(...)
 		width = width,
 		height = height,
 		secure = secure,
+		orientation = orientation,
 		screen_scale = screen.scale_factor(),
 	}
+
+	props.real_x, props.real_y, props.real_width, props.real_height, props.orientation = rect_rotate90(props.x, props.y, props.width, props.height, props.orientation)
 
 	local refresh_the_image_label = function(self, ...)
 		local duration = opt_value_ex(':refresh', 1, '(duration)', 'number', 0, ...)
@@ -578,7 +628,7 @@ function new_image_label(...)
 			local objc = require('objc')
 			local ffi = require('ffi')
 			dispatch_sync('main', function()
-				local frame = CGRectMake(props.x // props.screen_scale, props.y // props.screen_scale, props.width // props.screen_scale, props.height // props.screen_scale)
+				local frame = CGRectMake(props.real_x // props.screen_scale, props.real_y // props.screen_scale, props.real_width // props.screen_scale, props.real_height // props.screen_scale)
 				local image_data = objc.NSData.dataWithBytes(ffi.cast('const char *', props.image_data)).length(#(props.image_data))()
 				local image = objc.UIImage.imageWithData(image_data)()
 				local imageLabel
@@ -602,6 +652,13 @@ function new_image_label(...)
 				imageLabel.setImage(image)()
 				imageLabel.setHidden(false)()
 				objc.UIView.animateWithDuration(duration).animations(oneTimeBlock(function()
+					if props.orientation == 1 then
+						imageLabel.transform = CGAffineTransformMakeRotation(90 * (math.pi / 180.0))
+					elseif props.orientation == 2 then
+						imageLabel.transform = CGAffineTransformMakeRotation(270 * (math.pi / 180.0))
+					elseif props.orientation == 3 then
+						imageLabel.transform = CGAffineTransformMakeRotation(180 * (math.pi / 180.0))
+					end
 					imageLabel.setContentMode(2)() -- UIViewContentModeScaleAspectFill
 					imageLabel.setFrame(frame)()
 					imageLabel.backgroundColor = objc.UIColor.clearColor()
@@ -651,6 +708,7 @@ function new_image_label(...)
 		y = 'number',
 		width = 'number',
 		height = 'number',
+		orientation = 'number',
 	}
 
 	return setmetatable({}, {
@@ -671,7 +729,15 @@ function new_image_label(...)
 		__newindex = function(self, field, value)
 			field = string.lower(field)
 			if setter_type[field] and type(value) == setter_type[field] then
+				if field == 'orientation' then
+					if value < 0 then
+						value = 0
+					elseif value > 3 then
+						value = value % 4
+					end
+				end
 				props[field] = value
+				props.real_x, props.real_y, props.real_width, props.real_height, props.orientation = rect_rotate90(props.x, props.y, props.width, props.height, props.orientation)
 			elseif field == 'image' and image.is(value) then
 				the_image = value:copy()
 				props.image_data = the_image:png_data()
@@ -702,7 +768,7 @@ if been_require or is_being_required then
 		new_rectangle_border = new_rectangle_border,
 		edges_to_rect = edges_to_rect,
 		rect_to_edges = rect_to_edges,
-		_VERSION = "0.1",
+		_VERSION = "0.2",
 		_AUTHOR = "havonz",
 	}
 end
