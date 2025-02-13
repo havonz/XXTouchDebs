@@ -9,6 +9,9 @@
 	-- iOS 13.2 以上可以在安全模式下使用，并且支持 secure 属性
 	-- 阅读源码需要有 Objective-C 和 Lua 基础
 
+	-- 2025-02-21 版本更新 0.2.1：
+	-- 优化在新版 XXT 中使用内建 API 发送通知消息
+
 	-- 2025-01-21 版本更新 0.2：
 	-- 为所有控件添加了 orientation 属性，可以设置控件的参考坐标系，0 - 竖屏 Home 在下，1 - 横屏 Home 在右，2 - 横屏 Home 在左，3 - 竖屏 Home 在上
 
@@ -167,15 +170,41 @@ local shared_defined = lua_closure_dump(function()
 
 	UIApp = UIApp or objc.UIApplication.sharedApplication()
 
-	oneTimeBlock = oneTimeBlock or function(func)
-		local blk
-		blk = new_fixed_block_8(function(...)
-			dispatch_async('main', function()
-				release_fixed_block(blk)
+	if not oneTimeBlockTie then
+		local release_fixed_block = release_fixed_block
+		local new_fixed_block_8 = new_fixed_block_8
+	
+		local oneTimeBlockInternal = function(func, blocks)
+			blocks = blocks or {}
+			blocks[#blocks + 1] = new_fixed_block_8(function(...)
+				dispatch_async('main', function()
+					for i=#blocks, 1, -1 do
+						release_fixed_block(table.remove(blocks, i))
+					end
+				end)
+				return func(...)
 			end)
-			return func(...)
-		end)
-		return ffi.cast('id', blk)
+			return ffi.cast('id', blocks[#blocks])
+		end
+	
+		oneTimeBlockTie = function() -- 创建多个绑定在一起的一次性 block，它只允许其中任意一个 block 被执行一次
+			return setmetatable({}, {
+				__call = function(self, func)
+					return oneTimeBlockInternal(func, self)
+				end,
+				__index = {
+					release = function(self)
+						for i=#self, 1, -1 do
+							release_fixed_block(table.remove(self, i))
+						end
+					end,
+				},
+			})
+		end
+	
+		oneTimeBlock = function(func) -- 创建一个一次性 block，该 block 会在执行一次后被释放
+			return oneTimeBlockTie()(func)
+		end
 	end
 
 	setWindowActive = setWindowActive or function(window)
@@ -237,10 +266,13 @@ if sys.cfversion() < 1673.126 then -- iOS < 13.2
 		end
 	end
 else
-	function toast_service_run_script(func, ...)
+	local cpdistributed_messaging_center_send_message_and_receive_reply = cpdistributed_messaging_center_send_message_and_receive_reply or function(center_name, message_name, message)
 		local CPDMsgCenter = require("CPDMsgCenter")
-		local center = CPDMsgCenter("xxtouch.toast-service-center")
-		return center.sendMessageAndReceiveReply("eval-script", {
+		local center = CPDMsgCenter(center_name)
+		return center.sendMessageAndReceiveReply(message_name, message)
+	end
+	function toast_service_run_script(func, ...)
+		return cpdistributed_messaging_center_send_message_and_receive_reply("xxtouch.toast-service-center", "eval-script", {
 			script = string.format("load('%s')() local ok,err = pcall(load('%s')) if not ok then sys.log(err) end", shared_defined, lua_closure_dump(func, ...):to_hex('\\x')),
 		})
 	end
@@ -768,7 +800,7 @@ if true then
 		new_rectangle_border = new_rectangle_border,
 		edges_to_rect = edges_to_rect,
 		rect_to_edges = rect_to_edges,
-		_VERSION = "0.2",
+		_VERSION = "0.2.1",
 		_AUTHOR = "havonz",
 	}
 end
