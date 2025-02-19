@@ -3742,7 +3742,7 @@ XXTouch 使用 [Lua](http://www.lua.org/) 作为脚本语言，支持 [Lua 5.3](
         
         ```lua
         local function sh_escape(path) -- XXTouch 原创函数，未经 XXTouch 许可，可以用于商业用途
-        	path = string.gsub(path, "([ \\()<>'\"`#&*;?~$])", "\\%1")
+        	path = string.gsub(path, "([ \\()<>'\"`#&*;?~$|])", "\\%1")
         	return path
         end
         os.execute('uiopen '..sh_escape('http://www.google.com'))
@@ -10354,7 +10354,7 @@ os.execute('ln -s /private/var/mobile/Media/1ferver/log/sys.log /private/var/mob
 --]]
 
 local function sh_escape(path) -- XXTouch 原创函数，未经 XXTouch 许可，可以用于商业用途
-	path = string.gsub(path, "([ \\()<>'\"`#&*;?~$])", "\\%1")
+	path = string.gsub(path, "([ \\()<>'\"`#&*;?~$|])", "\\%1")
 	return path
 end
 
