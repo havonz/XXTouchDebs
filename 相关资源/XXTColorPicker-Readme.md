@@ -41,15 +41,15 @@
 
 - ### `鼠标左键单击缓存位置色块`  
     复制对应缓存位置缓存的颜色的 16 进制数值到剪贴板  
-    [复制单点颜色或坐标.mp4](XXTColorPicker-视频演示/07%20复制单点颜色或坐标.mp4)  
+    [复制单点颜色或坐标](#复制单点颜色或坐标)  
 
 - ### `鼠标左键双击缓存位置色块`  
     复制对应缓存位置缓存的坐标到剪贴板  
-    [复制单点颜色或坐标.mp4](XXTColorPicker-视频演示/07%20复制单点颜色或坐标.mp4)  
+    [复制单点颜色或坐标](#复制单点颜色或坐标)  
 
 - ### `鼠标左键双击缓存位置文本`  
     复制对应缓存位置缓存的格式化坐标颜色到剪贴板  
-    [复制单点颜色或坐标.mp4](XXTColorPicker-视频演示/07%20复制单点颜色或坐标.mp4)  
+    [复制单点颜色或坐标](#复制单点颜色或坐标)  
 
 - ### `回车键`/`鼠标左键单击图片`  
     将鼠标在图片上的坐标及颜色信息格式化缓存到下一个缓存位置上  
@@ -64,12 +64,12 @@
     对缓存位置上的所有的坐标从当前图片中重新取色  
 
 - ### `Shift` + `R`  
-    将剪贴板中特定格式的点色列表加载到点色缓存列表中  
-    [Shift + R 从剪贴板导入点色列表并使用 R 重新取色.mp4](XXTColorPicker-视频演示/06%20Shift%20+%20R%20从剪贴板导入点色列表并使用%20R%20重新取色.mp4)  
+    将剪贴板中特定格式的点色列表加载到点色缓存列表中
+    [Shift + R 从剪贴板导入点色列表并使用 R 重新取色](#Shift-%2B-R-从剪贴板导入点色列表并使用-R-重新取色)  
 
 - ### `M`  
     以第一个有效点为基点，将点色列表中的所有点平移到鼠标所指的另外一个位置重新取色  
-    [使用 M 平移所有点重新取色.mp4](XXTColorPicker-视频演示/04%20使用%20M%20平移所有点重新取色.mp4)  
+    [使用 M 平移所有点重新取色](#使用-M-平移所有点重新取色)  
 
 - ### `F`  
     使用格式化配置中的输出规则输出脚本  
@@ -82,11 +82,11 @@
 
 - ### `A`、`S`、`X`、`C`  
     将鼠标所指图片上的坐标缓存到对应的位置上  
-    [使用A、S设置框选区域.mp4](XXTColorPicker-视频演示/08%20使用A、S设置框选区域.mp4)  
+    [使用A、S设置框选区域](使用A、S设置框选区域)  
 
 - ### `Shift` + `鼠标框选`  
     将鼠标框选区域的左上角和右下角的坐标分别存入 `A`、`S` 缓存位置  
-    [使用A、S设置框选区域.mp4](XXTColorPicker-视频演示/08%20使用A、S设置框选区域.mp4)  
+    [使用A、S设置框选区域](使用A、S设置框选区域)  
 
 - ### `Ctrl` + `鼠标框选`  
     将鼠标框选区域的左上角和右下角的坐标分别存入 `X`、`C` 缓存位置  
@@ -252,3 +252,36 @@ Default 键在 Windows 为 Ctrl 键，在 macOS 为 Command 键
     str = string.fromHex(hexstr)
         使用 16 进制数文本编码/解码字符串
     ```
+
+## 视频演示
+- ### 连接到设备截图
+
+    https://github.com/user-attachments/assets/e034d364-7cb9-4bc9-9763-24c4d0b1bf32
+
+- ### 取色并在图像上显示标签
+
+    https://github.com/user-attachments/assets/9c6d0868-d6c9-4eb7-aa14-924815cfb292
+
+- ### 使用空格键将鼠标移动到指定点在图片上的位置
+
+    https://github.com/user-attachments/assets/680a767a-b448-4085-8130-3a2fd0dac992
+
+- ### 使用 M 平移所有点重新取色
+
+    https://github.com/user-attachments/assets/cf4a780b-d8d2-4399-b02a-4a591d0d8a99
+
+- ### 展开编辑器
+
+    https://github.com/user-attachments/assets/9f6d4bdd-9979-4d39-a3a6-73c6fb78d4b7
+
+- ### Shift + R 从剪贴板导入点色列表并使用 R 重新取色
+
+    https://github.com/user-attachments/assets/76f91f8b-4ce6-4584-9e73-31bdfd14c822
+
+- ### 复制单点颜色或坐标
+
+    https://github.com/user-attachments/assets/469bde09-50a3-4255-ac40-00f6d49e8fb2
+
+- ### 使用A、S设置框选区域
+
+    https://github.com/user-attachments/assets/aaca6450-9902-4f0f-8374-106feac7e013

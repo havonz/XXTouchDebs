@@ -10169,8 +10169,8 @@ JSON \(JavaScript Object Notation, JS 对象标记\) 是一种轻量级的数据
 ### 开发及周边工具下载
 
 - Windows 平台工具
-    > - [XXT_编辑器-20241204_Windows_版.zip](https://raw.githubusercontent.com/havonz/XXTouchDebs/master/%E7%9B%B8%E5%85%B3%E8%B5%84%E6%BA%90/XXT_%E7%BC%96%E8%BE%91%E5%99%A8-Win-20250219155521.zip)  
-    > - [XXT_编辑器-20241204_macOS_版.zip](https://raw.githubusercontent.com/havonz/XXTouchDebs/master/%E7%9B%B8%E5%85%B3%E8%B5%84%E6%BA%90/XXT_%E7%BC%96%E8%BE%91%E5%99%A8-macOS-20250219155521.zip)  
+    > - [XXT_编辑器-20240219_Windows_版.zip](https://raw.githubusercontent.com/havonz/XXTouchDebs/master/%E7%9B%B8%E5%85%B3%E8%B5%84%E6%BA%90/XXT_%E7%BC%96%E8%BE%91%E5%99%A8-Win-20250219155521.zip)  
+    > - [XXT_编辑器-20240219_macOS_版.zip](https://raw.githubusercontent.com/havonz/XXTouchDebs/master/%E7%9B%B8%E5%85%B3%E8%B5%84%E6%BA%90/XXT_%E7%BC%96%E8%BE%91%E5%99%A8-macOS-20250219155521.zip)  
     > - [XXT 取色器 1.0.25 Windows 版.7z](https://raw.githubusercontent.com/havonz/XXTouchDebs/master/%E7%9B%B8%E5%85%B3%E8%B5%84%E6%BA%90/XXT%20%E5%8F%96%E8%89%B2%E5%99%A8%201.0.25%20For%20Windows.7z)  
     > - [XXT 取色器 1.0.25 macOS 版 (depends JRE).zip](https://raw.githubusercontent.com/havonz/XXTouchDebs/master/%E7%9B%B8%E5%85%B3%E8%B5%84%E6%BA%90/XXT%20%E5%8F%96%E8%89%B2%E5%99%A8%201.0.25%20For%20macOS%20(depends%20JRE).zip)  
     > - [XXT_局域网集中控制器_2.7.6.4](https://raw.githubusercontent.com/havonz/XXTouchDebs/master/%E7%9B%B8%E5%85%B3%E8%B5%84%E6%BA%90/XXT_%E5%B1%80%E5%9F%9F%E7%BD%91%E6%8E%A7%E5%88%B6%E5%99%A8_V2.7.6.4.zip)  
