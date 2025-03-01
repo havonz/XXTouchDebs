@@ -1,7 +1,9 @@
 local XXTDo = (function()
 	local ok, XXTDo  = pcall(require, 'XXTDo')
 	if ok then
-		return XXTDo
+		if string.compare_version(XXTDo._VERSION, '0.8') >= 0 then
+			return XXTDo
+		end
 	end
 
 	local done = false
@@ -90,15 +92,15 @@ XXTDo.runloop {
 	csim = 90,
 
 	pre_run = function(_P)
-		_P.log('一轮新的判断开始')
+		XXTDo.log('一轮新的判断开始')
 	end,
 
 	post_run = function(_P, matched_info)
-		_P.log('本轮判断结束，匹配到的界面是：'..(type(matched_info) == 'table' and matched_info.ui.name or '(无)'))
+		XXTDo.log('本轮判断结束，匹配到的界面是：'..(type(matched_info) == 'table' and matched_info.ui.name or '(无)'))
 	end,
 
 	else_run = function(_P)
-		_P.log('本轮没有匹配任何界面')
+		XXTDo.log('本轮没有匹配任何界面')
 	end,
 
 	finally = function(_P, results)
