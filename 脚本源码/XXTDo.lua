@@ -24,7 +24,7 @@
 			post_run    = [函数型，可选，每轮检测后需要执行的函数，函数原型：post_run(整个界面列表, nil 或 {index = 当前界面在界面列表中的索引, ui = 表型当前界面信息}) 无返回，默认空函数],
 			else_run    = [函数型，可选，每轮所有界面都不匹配的的情况下需要执行的函数，在 post_run 之前执行，函数原型：else_run(整个界面列表) 无返回，默认空函数],
 			timeout_s   = [实数型，可选，全局任意界面或不匹配超时时间，单位秒，默认 0 不超时],
-			timeout_run = [函数型，可选，全局任意界面超时后的回调函数，函数原型：timeout_run(整个界面列表, nil 或 {index = 当前界面在界面列表中的索引, ui = 表型当前界面信息}) 这个函数可以按需显式返回 false 或 'failed' 表示处理超时失败不重置超时计时器，默认空函数返回失败],
+			timeout_run = [函数型，可选，全局任意界面超时后的回调函数，函数原型：timeout_run(整个界面列表, nil 或 {index = 当前界面在界面列表中的索引, ui = 表型当前界面信息}) 这个函数可以按需显式返回 false 或 'failed' 表示处理超时失败不重置超时计时器，默认空函数],
 			enter       = [函数型，可选，进入界面循环之前会调用该函数一次，函数原型：enter(整个界面列表) 无返回，默认空函数],
 			finally     = [函数型，可选，跳出界面循环（XXTDo.breakloop）之前会调用该函数一次，函数原型：finally(整个界面列表[, XXTDo.breakloop 的参数列表]) 无返回，但它可以再次调用 XXTDo.breakloop 来更改 runloop 的返回值，默认空函数],
 			{
@@ -106,7 +106,7 @@
 local _ENV = table.deep_copy(_ENV)
 local _M = {}
 
-_M._VERSION = '0.8'
+_M._VERSION = '0.8.1'
 
 local breakloop_tips = '请不要在界面过滤器函数或 XXTDo.runloop 外部执行 XXTDo.breakloop '..string.sub(string.sha256(string.random('0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ', 1000)), 7, 16)
 
@@ -286,9 +286,10 @@ function _M.runloop(orig_loop_table)
 		end
 	end
 	local function _match_rules_default(self, index, parent)
-		local csim = (type(self.csim) == 'number' and self.csim) or (type(parent.csim) == 'number' and parent.csim) or 90
-		if type(self.group) == 'table' and #(self.group) > 0 then
-			for subidx, subui in ipairs(self.group) do
+		local csim = tonumber(self.csim) or 90
+		local self_group = rawget(self, 'group')
+		if type(self_group) == 'table' and #(self_group) > 0 then
+			for subidx, subui in ipairs(self_group) do
 				if type(subui) == 'table' and #subui > 0 then
 					local filter_results = _L.filter(subui, tonumber(subui.csim) or csim or 90, {loop_table = parent, ui = self, index = index, subindex = subidx})
 					if filter_results[1] then
@@ -403,7 +404,7 @@ function _M.runloop(orig_loop_table)
 		return to_finally()
 	end
 	while (true) do
-		local _current_interval_ms = type(loop_table.interval_ms) == 'number' and loop_table.interval_ms or _L.interval_ms
+		local _current_interval_ms = tonumber(loop_table.interval_ms) or _L.interval_ms
 		screen.keep()
 		sys.msleep(2)
 		_TMP.current_log_func = _log_func
@@ -417,25 +418,35 @@ function _M.runloop(orig_loop_table)
 		local match_rules = _L.match_rules
 		local current_ui_state = _TMP.current_ui_state
 		for idx, currentui in ipairs(loop_table) do
-			if type(currentui) == 'table' and (
-				#currentui > 0 or
-				(currentui.rule and match_rules[currentui.rule]) or
-				(type(currentui.group) == 'table' and #(currentui.group) > 0)
-			) then
+			local is_valid_ui
+			local currentui_rule, currentui_group
+			if type(currentui) == 'table' then
+				currentui_rule = match_rules[rawget(currentui, 'rule')]
+				currentui_group = rawget(currentui, 'group')
+				if #currentui > 0 then
+					is_valid_ui =  true
+				elseif currentui_rule then
+					is_valid_ui = true
+				elseif currentui_group and #(currentui_group) > 0 then
+					is_valid_ui = true
+				end
+			end
+			if is_valid_ui then
 				local found = false
 				local subindex = -1
 				current_ui_state[1] = currentui
 				current_ui_state[2] = idx
 				current_ui_state[3] = loop_table
-				if match_rules[currentui.rule] then
-					filter_results = match_rules[currentui.rule](currentui, idx, loop_table)
+				if currentui_rule then
+					filter_results = currentui_rule(currentui, idx, loop_table)
 					found = filter_results[1] and true
 				else
 					filter_results = match_rules.default(currentui, idx, loop_table)
 					found = filter_results[1] and true
 				end
 				if found and filter_results then
-					currentui.name = type(currentui.name) == 'string' and currentui.name or ''
+					local currentui_name = rawget(currentui, 'name')
+					currentui_name = type(currentui_name) == 'string' and currentui_name or ''
 					if type(filter_results.subindex) == 'number' then
 						subindex = filter_results.subindex
 					end
@@ -445,30 +456,31 @@ function _M.runloop(orig_loop_table)
 					else
 						idxstr = string.format('[%d]', idx)
 					end
-					_log_func(string.format('匹配 %s %s %q', _L.loop_name, idxstr, currentui.name))
+					_log_func(string.format('匹配 %s %s %q', _L.loop_name, idxstr, currentui_name))
 					local runstat = _callifexists({ui = currentui, index = idx, subindex = subindex}, currentui.run, currentui, idx, loop_table, filter_results[2])
 					if (runstat == 'breakloop') then
-						_log_func(string.format('从 %s %q 跳出界面匹配循环 %s', idxstr, currentui.name, _L.loop_name))
+						_log_func(string.format('从 %s %q 跳出界面匹配循环 %s', idxstr, currentui_name, _L.loop_name))
 						return to_finally()
 					elseif (runstat == 'success') then
-						_current_interval_ms = type(currentui.interval_ms) == 'number' and currentui.interval_ms or _L.interval_ms
+						local currentui_timeout_s = tonumber(currentui.timeout_s) or 0
+						_current_interval_ms = tonumber(currentui.interval_ms) or _L.interval_ms
 						foundui = {ui = currentui, index = idx, subindex = subindex}
 						_L.timer_current_found = idx
 						if (_L.timer_current_found ~= _L.timer_last_found) then
 							_L.timer_last_found = _L.timer_current_found
 							_L.timer_begin_time = os.time()
-						elseif ((tonumber(currentui.timeout_s) or 0) > 0 and os.difftime(os.time(), _L.timer_begin_time) > tonumber(currentui.timeout_s)) then
+						elseif currentui_timeout_s > 0 and os.difftime(os.time(), _L.timer_begin_time) > currentui_timeout_s then
 							local timeout_run = _L.timeout_run
 							if type(currentui.timeout_run) == 'function' then
 								timeout_run = currentui.timeout_run
 							end
-							_log_func(string.format('从 %s %s %q 超时', _L.loop_name, idxstr, currentui.name))
+							_log_func(string.format('从 %s %s %q 超时', _L.loop_name, idxstr, currentui_name))
 							local timeout_run_results = _callifexists({ui = currentui, index = idx, subindex = subindex}, timeout_run, loop_table, foundui, filter_results[2])
 							_log_func(string.format('%s 超时回调返回 %s ', _L.loop_name, timeout_run_results))
 							if (timeout_run_results == 'success') then
 								_L.timer_begin_time = os.time()
 							elseif (timeout_run_results == 'breakloop') then
-								_log_func(string.format('从 %s %q 超时回调跳出界面匹配循环 %s', idxstr, currentui.name, _L.loop_name))
+								_log_func(string.format('从 %s %q 超时回调跳出界面匹配循环 %s', idxstr, currentui_name, _L.loop_name))
 								return to_finally()
 							end
 						end
@@ -497,7 +509,7 @@ function _M.runloop(orig_loop_table)
 			_L.timer_last_found = _L.timer_current_found
 			_L.timer_begin_time = os.time()
 		elseif (_L.timeout_s > 0 and os.difftime(os.time(), _L.timer_begin_time) > _L.timeout_s) then
-			local matched_ui_has_timeout_s = type(foundui) == 'table' and type(foundui.ui) == 'table' and (tonumber(foundui.ui.timeout_s) or 0) > 0
+			local matched_ui_has_timeout_s = type(foundui) == 'table' and type(foundui.ui) == 'table' and (tonumber(rawget(foundui.ui, 'timeout_s')) or 0) > 0
 			if not matched_ui_has_timeout_s then -- 超时所在界面的超时配置优先权高于全局超时配置
 				_log_func(string.format('%s 未匹配任何界面超时', _L.loop_name))
 				local timeout_run_results = _callifexists('global_timeout_run', _L.timeout_run, loop_table, foundui)
