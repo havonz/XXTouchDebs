@@ -1479,7 +1479,7 @@ XXTouch 使用 [Lua](http://www.lua.org/) 作为脚本语言，支持 [Lua 5.3](
 - ### 模拟键入文本 (**key\.send\_text**)
     - 声明  
         ```lua
-        key.send_text(文本 [, 每键延迟 ])
+        key.send_text(文本 [, 每键延迟, Shift键延迟 ])
         ```
     
     - 参数及返回值  
@@ -1487,7 +1487,7 @@ XXTouch 使用 [Lua](http://www.lua.org/) 作为脚本语言，支持 [Lua 5.3](
             文本型，待输入的文字，只能是英文数字和半角字符还有 `"\b"` `"\r"` `"\t"`  
         > - 每键延迟  
             整数型，输入每次按键延迟，默认没有延迟以设备性能极限输入  
-        > - Shift 键延迟  
+        > - Shift键延迟  
             整数型，大写字母或是某些特殊符号需要按住 Shift 输入，例如 `@` 是 `Shift + 2`  
     
     - 说明  
@@ -2985,7 +2985,7 @@ XXTouch 使用 [Lua](http://www.lua.org/) 作为脚本语言，支持 [Lua 5.3](
 ---
 <br />
 
-- ### 清理剪贴板 (**clear\.pasteboard**)
+- ### ~~清理剪贴板 (**clear\.pasteboard**)~~
     - 声明  
         ```lua
         clear.pasteboard()
@@ -2994,6 +2994,7 @@ XXTouch 使用 [Lua](http://www.lua.org/) 作为脚本语言，支持 [Lua 5.3](
     - 说明  
         > 清理剪贴板信息，一些信息会存在剪贴板中，比如 OpenUDID  
         > **警告：这个函数调用产生的效果不可逆转**  
+        > **已弃用：** iOS 8 以后，这个函数应该只留下破坏剪贴板服务的副作用了，非必要请不要再使用它  
         
     - 示例  
         ```lua
