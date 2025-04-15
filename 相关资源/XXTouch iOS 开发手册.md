@@ -6719,6 +6719,333 @@ webview 模块在 iOS 16 以上已无法使用
     **注**：上述代码中使用了非本章函数 [`screen.size`](#获取屏幕尺寸-screensize)、[`proc_queue_clear`](##从进程队列词典中弹出所有值\-procqueueclear)、[`thread.register_event`](#注册监听一个事件\-threadregisterevent)、[`proc_get`](#查看进程字典存储的值-procget)、[`sys.toast`](#显示提示文字\-systoast)、[`sys.msleep`](#毫秒级延迟\-sysmsleep)
 
 
+---
+<br />
+<br />
+<br />
+
+## 脚本包模块（xpp）  
+
+- ### 获取当前脚本包的元信息 (**xpp\.info**)  
+    - 声明  
+        ```lua
+        元信息 = xpp.info()
+        ```
+    
+    - 参数及返回值  
+        > - 元信息  
+            表型，返回当前脚本包的元信息，如果当前正在运行的脚本不是脚本包，返回一个空表  
+    
+    - 说明  
+        > **这个函数在 1\.2\-3 版以上方可使用**  
+        > 用于从运行着的脚本中获取当前脚本的元信息  
+        
+    - 示例  
+        ```lua
+        local info = xpp.info()
+        ```
+
+
+
+---
+<br />
+
+
+- ### 获取当前脚本包的包路径 (**xpp\.bundle_path**)  
+    - 声明  
+        ```lua
+        包路径 = xpp.bundle_path()
+        ```
+    
+    - 参数及返回值  
+        > - 包路径  
+            文本型，返回当前脚本包的包路径，如果当前正在运行的脚本不是脚本包，返回当前运行的脚本路径  
+    
+    - 说明  
+        > **这个函数在 1\.2\-3 版以上方可使用**  
+        > 用于从运行着的脚本中获取当前脚本的路径  
+        
+    - 示例  
+        ```lua
+        local path = xpp.bundle_path()
+        ```
+
+
+
+---
+<br />
+
+
+- ### 获取当前脚本包中的资源路径 (**xpp\.resource_path**)  
+    - 声明  
+        ```lua
+        资源路径 = xpp.resource_path(资源文件名)
+        ```
+    
+    - 参数及返回值  
+        > - 资源路径  
+            文本型 或 nil，返回当前脚本包的某个资源文件的路径，如果资源不存在，则返回 nil  
+    
+    - 说明  
+        > **这个函数在 1\.2\-3 版以上方可使用**  
+        > 用于从运行着的脚本中获取当前脚本包中的某个资源文件的路径，支持本地化  
+        
+    - 示例  
+        ```lua
+        local path = xpp.resource_path('appicon.png')
+        ```
+
+
+
+---
+<br />
+<br />
+<br />
+
+
+
+## 脚本配置界面模块（xui）  
+
+- ### 展示一个配置界面 (**xui\.show**)  
+    - 声明  
+        ```lua
+        xui.show(配置界面文件名)
+        ```
+    
+    - 参数及返回值  
+        > - 配置界面文件名  
+            文本型，需要展示的当前脚本包中的配置界面文件（\.xui）的文件名，只能是当前脚本包内的配置界面文件（\.xui）  
+    
+    - 说明  
+        > **这个函数在 1\.2\-10 版以上方可使用**  
+        > 立刻使用 App 展示展示配置界面  
+        该函数不会阻塞，没有返回值，会调起 App 尝试展示，展示失败会在 App 内显示  
+        
+    - 示例  
+        ```lua
+        xui.show('interface.xui')
+        ```
+
+
+
+---
+<br />
+
+
+- ### 收起正在展示的配置界面 (**xui\.dismiss**)  
+    - 声明  
+        ```lua
+        xui.dismiss()
+        ```
+    
+    - 说明  
+        > **这个函数在 1\.2\-10 版以上方可使用**  
+        > 尝试让 App 收起配置界面回到主界面  
+        该函数不会阻塞，没有返回值，会调起 App 尝试收起配置界面，如果没有配置界面正在展示则跳转到 App 什么都不发生  
+        
+    - 示例  
+        ```lua
+        xui.dismiss()
+        ```
+
+
+
+---
+<br />
+
+
+- ### 校验配置界面的配置 (**xui\.setup**)  
+    - 声明  
+        ```lua
+        xui.setup(配置界面文件名)
+        ```
+    
+    - 参数及返回值  
+        > - 配置界面文件名  
+            文本型，需要校验的当前脚本包中的配置界面文件（\.xui）的文件名，只能是当前脚本包内的配置界面文件（\.xui）  
+    
+    - 说明  
+        > **这个函数在 1\.2\-10 版以上方可使用**  
+        > 如果配置界面没有被配置过，则此函数用于生成该配置界面的默认配置，并且同时它会根据配置界面中的控件校验并修正存储的配置的值类型  
+        
+    - 示例  
+        ```lua
+        xui.setup('interface.xui')
+        ```
+
+
+
+---
+<br />
+
+
+- ### 重新加载当前正在展示的配置界面 (**xui\.reload**)  
+    - 声明  
+        ```lua
+        xui.reload()
+        ```
+    
+    - 说明  
+        > **这个函数在 1\.2\-10 版以上方可使用**  
+        > 如果当前没有正在展示配置界面，则什么都不发生  
+        > 注意控制好这个函数的调用频率，频率太高会导致 App 卡死  
+        
+    - 示例  
+        ```lua
+        xui.reload()
+        ```
+
+
+
+---
+<br />
+
+
+- ### 获取配置界面的配置值 (**xui\.get**)  
+    - 声明  
+        ```lua
+        值 = xui.get(配置分区, 配置键)
+        ```
+    
+    - 参数及返回值  
+        > - 配置分区  
+            文本型，配置界面中的配置分区（defaults）标识符  
+        > - 配置键  
+            文本型，配置界面中的控件的配置键（key）标识符  
+        > - 值  
+            任意类型，不同的控件类型会返回不同的值，如果没有该配置值，返回 nil  
+    
+    - 说明  
+        > **这个函数在 1\.2\-10 版以上方可使用**  
+        > 该函数不负责过滤值类型，如果需要保证获取的值类型合法，可先使用 xui\.setup 来校验修正再读取  
+        
+    - 示例  
+        ```lua
+        xui.setup('interface.xui')
+        local enabled = xui.get('com.yourcompany.A-Script-Bundle', 'enabled')
+        ```
+
+
+
+---
+<br />
+
+
+- ### 设置配置界面上的某个控件的值 (**xui\.set**)  
+    - 声明  
+        ```lua
+        xui.set(配置分区, 配置键, 值)
+        ```
+    
+    - 参数及返回值  
+        > - 配置分区  
+            文本型，配置界面中的配置分区（defaults）标识符  
+        > - 配置键  
+            文本型，配置界面中的控件的配置键（key）标识符  
+        > - 值  
+            任意类型，不同的控件类型可以设置不同的值  
+    
+    - 说明  
+        > **这个函数在 1\.2\-10 版以上方可使用**  
+        > 如果当前正显示着配置界面，则该函数会立刻更新界面上的显示值  
+        该函数不负责过滤值类型，如果需要保证值类型合法，可于设置后使用 xui\.setup 来校验修正  
+        
+    - 示例  
+        ```lua
+        xui.set('com.yourcompany.A-Script-Bundle', 'enabled', true)
+        xui.setup('interface.xui')
+        ```
+
+
+
+---
+<br />
+
+
+- ### 读取某个配置分区所有配置 (**xui\.read**)
+    - 声明  
+        ```lua
+        配置 = xui.read(配置分区)
+        ```
+    
+    - 参数及返回值  
+        > - 配置分区  
+            文本型，配置界面中的配置分区（defaults）标识符  
+        > - 配置  
+            表型，这个配置分区所有配置的键值对，如果没有该配置分区，则返回空表  
+    
+    - 说明  
+        > **这个函数在 1\.2\-10 版以上方可使用**  
+        > 该函数用于优化读取多个配置  
+        该函数不负责过滤值类型，如果需要保证获取的值类型合法，可先使用 xui\.setup 来校验修正再读取  
+        
+    - 示例  
+        ```lua
+        xui.setup('interface.xui')
+        local dict = xui.read('com.yourcompany.A-Script-Bundle')
+        local enabled = dict['enabled']
+        ```
+
+
+
+---
+<br />
+
+
+- ### 覆盖写入配置表到某个配置分区 (**xui\.write**)  
+    - 声明  
+        ```lua
+        操作成败 = xui.write(配置分区, 配置)
+        ```
+    
+    - 参数及返回值  
+        > - 配置分区  
+            文本型，配置界面中的配置分区（defaults）标识符  
+        > - 配置  
+            表型，配置的键值对  
+    
+    - 说明  
+        > **这个函数在 1\.2\-10 版以上方可使用**  
+        > 该函数用于优化同时设置多项配置，如果当前正显示着配置界面，则该函数会立刻更新界面上的显示值  
+        该函数不负责过滤值类型，如果需要保证值类型合法，可于写入后使用 xui\.setup 来校验修正  
+        
+    - 示例
+        ```lua
+        xui.setup('interface.xui')
+        local dict = xui.read('com.yourcompany.A-Script-Bundle')
+        dict['enabled'] = true
+        xui.write('com.yourcompany.A-Script-Bundle', dict)
+        xui.setup('interface.xui')
+        ```
+
+
+
+---
+<br />
+
+
+- ### 清除某个配置分区所有的配置 (**xui\.clear**)  
+    - 声明  
+        ```lua
+        操作成败 = xui.clear(配置分区)
+        ```
+    
+    - 参数及返回值  
+        > - 配置分区  
+            文本型，配置界面中的配置分区（defaults）标识符  
+    
+    - 说明  
+        > **这个函数在 1\.2\-10 版以上方可使用**  
+        > 该函数用于优化同时设置多项配置，如果当前正显示着配置界面，则该函数会立刻更新界面上的显示值  
+        可于清除后使用 xui\.setup 再次生成配置界面的默认配置  
+        
+    - 示例  
+        ```lua
+        xui.clear('com.yourcompany.A-Script-Bundle')
+        xui.setup('interface.xui')
+        ```
+
+
 
 ---
 <br />
@@ -7356,6 +7683,74 @@ webview 模块在 iOS 16 以上已无法使用
         ```lua
         rs = string.random("qwertyuiopasdfghjklzxcvbnm", 20, 1)
         rs = string.random("一二三四五六七八九十", 20, 3)
+        ```
+
+
+
+---
+<br />
+
+- ### 比较两个版本号大小 (**string\.compare\_version**)
+    - 声明
+        ```lua
+        比较结果 = string.compare_version(版本号甲, 版本号乙)
+        ```
+    
+    - 参数及返回值
+        > - 版本号甲, 版本号乙
+            文本型，需要比较大小的两个版本号
+        > - 比较结果
+            整数型，版本号甲大于版本号乙返回 1，版本号甲小于版本号乙返回 \-1，版本号相等返回 0
+    
+    - 说明
+        > 比较两个版本号字符串大小，遵守如下比较规则  
+        > 使用点 \(\.\) 或减号 \(\-\) 或空格隔开的纯数字值  
+        > 不同分隔符效果相等，多个分隔符连在一起被认为是一个分隔符    
+        > 权值随分段从左至右逐步降低  
+        > 遇到任何非法字符将截断不对比后面的内容  
+        > 如果段数不等，则不够段数用 '0' 补齐对比  
+        > 空字符串或非法串会被认为版本号是 '0'  
+        > 例如 '1\.1' 与 '1\.1\.0' 是相等的两个版本号  
+        > 例如 '1\.1' 与 '1\.1\-0' 是相等的两个版本号  
+        > 例如 '1\.1' 与 '1\-1' 是相等的两个版本号  
+        > 例如 '1\.0' 与 '1 0' \(1 和 0 之间有个空格\) 是相等的两个版本号  
+        > 例如 '1\.0' 大于 '0\.99999'  
+        > **这个函数在 1\.2\-3 版以上方可使用**  
+        > 这个函数在 1\.2\-10 版以上可以在 XUI 中使用  
+        
+    - 示例
+        ```lua
+        assert(string.compare_version("", "") == 0)
+        assert(string.compare_version("1", "") == 1)
+        assert(string.compare_version("", "1") == -1)
+        assert(string.compare_version("1", "1") == 0)
+        assert(string.compare_version("1.0", "1") == 0)
+        assert(string.compare_version("1", "1.0") == 0)
+        assert(string.compare_version("1.", "1") == 0)
+        assert(string.compare_version("1", "1.") == 0)
+        assert(string.compare_version("1.", "1.0") == 0)
+        assert(string.compare_version("1.0", "1.") == 0)
+        assert(string.compare_version("1.0", "1.0") == 0)
+        assert(string.compare_version("1.0.0", "1.0.0") == 0)
+        assert(string.compare_version("1.1", "1.0") == 1)
+        assert(string.compare_version("1.0", "1.1") == -1)
+        assert(string.compare_version("1.1", "1.10") == -1)
+        assert(string.compare_version("1.2", "1.11") == -1)
+        assert(string.compare_version("1.1", "1.1.1") == -1)
+        assert(string.compare_version("1.2", "1.1.1") == 1)
+        assert(string.compare_version("1.0", "0.99999") == 1)
+        assert(string.compare_version("1.10.1", "1.10") == 1)
+        assert(string.compare_version("1.2-4", "1.2-3") == 1)
+        assert(string.compare_version("1.2-3", "1.2.3") == 0)
+        assert(string.compare_version("1.2-4", "1.2.3.0") == 1)
+        assert(string.compare_version("1.2-4", "1.2.3.10") == 1)
+        assert(string.compare_version("1.2-4", "1.2.30.10") == -1)
+        assert(string.compare_version("1.2-3", "1.2.4") == -1)
+        assert(string.compare_version("2.2", "1.2") == 1)
+        assert(string.compare_version("2.2", "10.2") == -1)
+        assert(string.compare_version("2..2", "2.2") == 0)
+        assert(string.compare_version("2.2.x.3", "2.2") == 0)
+        assert(string.compare_version("x", "") == 0)
         ```
 
 
@@ -9064,6 +9459,66 @@ JSON \(JavaScript Object Notation, JS 对象标记\) 是一种轻量级的数据
 
 ---
 <br />
+
+- ### 计算一个文件的 MD5 (**file\.md5**)
+    - 声明  
+        ```lua
+        校验值 = file.md5(文件路径)
+        ```
+    
+    - 参数及返回值  
+        > - 文件路径  
+            文本型，文件绝对路径  
+        > - 校验值  
+            字符串型 或 nil，文件不存在返回 nil，否则返回其 MD5 校验值  
+    
+    - 说明  
+        > 计算一个文件的 MD5  
+        > **这个函数在 1\.2\-3 版以上方可使用**  
+        
+    - 示例  
+        ```lua
+        local hash = file.md5("/var/mobile/1.zip")
+        if hash then
+            sys.alert("`/var/mobile/1.zip` 的 MD5 校验值："..hash)
+        else
+            sys.alert("`/var/mobile/1.zip` 不是文件")
+        end
+        ```
+        **注**：上述代码中使用了非本章函数 [`sys.alert`](#弹出系统提示\-sysalert)  
+
+---
+<br />
+
+- ### 计算一个文件的 SHA1 (**file\.sha1**)
+    - 声明  
+        ```lua
+        校验值 = file.sha1(文件路径)
+        ```
+    
+    - 参数及返回值  
+        > - 文件路径  
+            文本型，文件绝对路径  
+        > - 校验值  
+            字符串型 或 nil，文件不存在返回 nil，否则返回其 SHA1 校验值  
+    
+    - 说明  
+        > 计算一个文件的 MD5  
+        > **这个函数在 1\.2\-3 版以上方可使用**  
+        
+    - 示例  
+        ```lua
+        local hash = file.sha1("/var/mobile/1.zip")
+        if hash then
+            sys.alert("`/var/mobile/1.zip` 的 SHA1 校验值："..hash)
+        else
+            sys.alert("`/var/mobile/1.zip` 不是文件")
+        end
+        ```  
+        **注**：上述代码中使用了非本章函数 [`sys.alert`](#弹出系统提示\-sysalert)  
+
+---
+<br />
 <br />
 <br />
 
@@ -9897,6 +10352,45 @@ JSON \(JavaScript Object Notation, JS 对象标记\) 是一种轻量级的数据
     ```
 
     **注**：上述代码中使用了非本章函数 [`sys.alert`](#弹出系统提示\-sysalert)
+    
+- #### 模拟 HTTP 请求百度首页示例  
+    ```lua
+    local socket = require('socket')
+    
+    local sock = socket.tcp()
+    local ip = assert(socket.dns.toip('www.baidu.com'), '域名解析失败')
+    sock:settimeout(10)
+    assert(sock:connect(ip, 80) == 1, '连接失败或超时')
+    
+    assert(
+        sock:send(
+            'GET / HTTP/1.1\r\n'..
+            'Host: www.baidu.com\r\n'..
+            'Accept: */*\r\n'..
+            'Connection: close\r\n'..
+            '\r\n'
+        ),
+        '发送数据超时'
+    )
+    
+    local buf = {}
+    repeat
+        local chunk, status, partial = sock:receive(4096)
+        if (chunk) then
+            buf[#buf + 1] = chunk
+        else
+            if (partial) then
+                buf[#buf + 1] = partial
+            end
+        end
+    until status == "closed"
+    sock:close()
+    
+    sys.alert(table.concat(buf))
+    ```
+
+    **注**：上述代码中使用了非本章函数 [`sys.alert`](#弹出系统提示\-sysalert)、[table.concat](http://cloudwu.github.io/lua53doc/manual.html#pdf-table.concat)
+
 
 ---
 <br />
@@ -10370,7 +10864,7 @@ function frename(from, to) -- 重命名（移动）一个文件或目录
     os.execute('mv -f '..sh_escape(from).." "..sh_escape(to))
 end
 
-function fcopy(from, to) -- 拷贝一个文件或目录
+function fcopy(from, to) -- 拷贝一个文件或目录 (递归拷贝子项) 
     assert(type(from)=="string" and from~="", 'fcopy 参数 1 异常')
     assert(type(to)=="string" and to~="", 'fcopy 参数 2 异常')
     os.execute('cp -rf '..sh_escape(from).." "..sh_escape(to))
