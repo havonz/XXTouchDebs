@@ -156,7 +156,7 @@ Default 键在 Windows 为 Ctrl 键，在 macOS 为 Command 键
     ```
     macOS 特有  
     ```
-    Default + Shift + Z  撤销
+    Default + Shift + Z  重做
     ```
 
 - ### 编程快捷键  
@@ -251,6 +251,23 @@ Default 键在 Windows 为 Ctrl 键，在 macOS 为 Command 键
     hexstr = string.toHex(str)
     str = string.fromHex(hexstr)
         使用 16 进制数文本编码/解码字符串
+    File = Java.class("java.io.File")
+        获取一个 Java 类的操作对象
+    newRunnable = Java.imple("java.lang.Runnable", {run = function() end})
+        实现一个协议实例
+    f = Java.new("java.io.File", "1.png")
+    f = Java.new(Java.class("java.io.File"), "1.png")
+        创建一个类实例
+    r = Java.newRunnable(function() end)
+        创建一个 Runnable 对象，有 run 方法
+    a = Java.newAction(function() end)
+        创建一个 Action 对象，有 actionPerformed 方法
+    al = Java.newActionListener(function() end)
+        创建一个 ActionListener 对象，有 actionPerformed 方法
+    Java.dispatchEvent(function() end)
+        在主线程执行一个函数
+    t = Java.newThread(function() end)
+        创建一个线程执行一个函数
     ```
 
 ## 视频演示
