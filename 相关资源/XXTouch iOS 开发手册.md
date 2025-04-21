@@ -9332,8 +9332,8 @@ JSON \(JavaScript Object Notation, JS 对象标记\) 是一种轻量级的数据
     
     - 说明  
         > 使用通配符模式或 Lua 精确匹配搜索文件或目录，返回匹配的文件名列表。  
-        > 如果 匹配模式 是字符串，则使用通配符模式匹配，通配符模式匹配仅支持 \*、?、\[\.\.\.\] 这三种通配符。  
-        > 如果 匹配模式 是表，则使用 Lua 精确匹配。  
+        > 如果 `匹配模式` 是字符串，则使用通配符模式匹配，通配符模式匹配仅支持 \*、?、\[\.\.\.\] 这三种通配符。  
+        > 如果 `匹配模式` 是表，则使用 Lua 精确匹配。  
         > 使用通配符模式或 Lua 精确匹配搜索文件或目录，返回匹配的文件名列表。  
         > **这个函数在 20250416 以后的版本方可使用**  
         
@@ -9352,10 +9352,17 @@ JSON \(JavaScript Object Notation, JS 对象标记\) 是一种轻量级的数据
         -- 精确 Lua 模式匹配模式
         -- 精确匹配使用 Lua 表分段构造匹配模式，字符串为字面量判断，模式匹配可以使用返回真假的函数来决定当前分段是否有效
         local results = file.find{ --<--- 注意这里是大括号
-            "/private/var/mobile/Containers/Shared/AppGroup/", -- 普通字符串不包含模式
-            function(s) return s:match("^[A-F0-9]+%-[A-F0-9]+%-[A-F0-9]+%-[A-F0-9]+%-[A-F0-9]+$") end, -- 使用函数匹配当前层级
+            "/private/var/mobile/Containers/Shared/AppGroup/", -- 普通字符串不需要模式匹配
+            function(s) return s:match("^[A-F0-9]+%-[A-F0-9]+%-[A-F0-9]+%-[A-F0-9]+%-[A-F0-9]+$") end, -- 使用函数匹配当前分段
             "/Library/Preferences/",
-            function(s) return s:match("%.plist$") end,
+            function(s) return s:match("%.plist$") end, -- 使用函数匹配当前分段
+        }
+        -- 精确 Lua 模式匹配模式也可使用大括号包裹单个字符串以构造一个简易模式匹配函数
+        local results = file.find{ --<--- 注意这里是大括号
+            "/private/var/mobile/Containers/Shared/AppGroup/", -- 普通字符串不需要模式匹配
+            {"^[A-F0-9]+%-[A-F0-9]+%-[A-F0-9]+%-[A-F0-9]+%-[A-F0-9]+$"}, -- 使用表包裹单个字符串表示这是一个需要使用模式匹配的分段
+            "/Library/Preferences/", -- 普通字符串不需要模式匹配
+            {"%.plist$"}, -- 使用表包裹单个字符串表示这是一个需要使用模式匹配的分段
         }
         ```
 
