@@ -1545,6 +1545,13 @@ XXTouch 使用 [Lua](http://www.lua.org/) 作为脚本语言，支持 [Lua 5.3](
     key.press("V") -- 按一下 v 键
     sys.msleep(20) -- 等待 20 毫秒
     key.up("LEFTCOMMAND") -- 松开 command 键
+
+    -- 下面这个例子是模拟组合键 command + `[` 返回上一页
+    key.down("LEFTCOMMAND") -- 按下 command 键
+    sys.msleep(20) -- 等待 20 毫秒
+    key.press("[") -- 按一下 `[` 键
+    sys.msleep(20) -- 等待 20 毫秒
+    key.up("LEFTCOMMAND") -- 松开 command 键
     
     key.press("VOLUMEUP") -- 按一下音量 + 键
     key.press("VOLUMEDOWN") -- 按一下音量 - 键
@@ -1660,8 +1667,8 @@ XXTouch 使用 [Lua](http://www.lua.org/) 作为脚本语言，支持 [Lua 5.3](
 <br />
 <br />
 
-## 模拟重力加速计模块（accelerometer）
-- ### 模拟加速计数据 (**accelerometer\.simulate**)
+## ~~模拟重力加速计模块（accelerometer）~~
+- ### ~~模拟加速计数据 (**accelerometer\.simulate**)~~
     - 声明  
         ```lua
         accelerometer.simulate(横坐标, 纵坐标, 垂直坐标, 附加选项)
@@ -1695,7 +1702,7 @@ XXTouch 使用 [Lua](http://www.lua.org/) 作为脚本语言，支持 [Lua 5.3](
 ---
 <br />
 
-- ### 模拟摇一摇 (**accelerometer\.shake**)
+- ### ~~模拟摇一摇 (**accelerometer\.shake**)~~
     - 声明  
         ```lua
         accelerometer.shake()
@@ -1719,7 +1726,7 @@ XXTouch 使用 [Lua](http://www.lua.org/) 作为脚本语言，支持 [Lua 5.3](
 ---
 <br />
 
-- ### 改变当前重力方向为 home 在左 (**accelerometer\.rotate\_home\_on\_left**)
+- ### ~~改变当前重力方向为 home 在左 (**accelerometer\.rotate\_home\_on\_left**)~~
     - 声明  
         ```lua
         accelerometer.rotate_home_on_left()
@@ -1740,7 +1747,7 @@ XXTouch 使用 [Lua](http://www.lua.org/) 作为脚本语言，支持 [Lua 5.3](
 ---
 <br />
 
-- ### 改变当前重力方向为 home 在右 (**accelerometer\.rotate\_home\_on\_right**)
+- ### ~~改变当前重力方向为 home 在右 (**accelerometer\.rotate\_home\_on\_right**)~~
     - 声明  
         ```lua
         accelerometer.rotate_home_on_right()
@@ -1761,7 +1768,7 @@ XXTouch 使用 [Lua](http://www.lua.org/) 作为脚本语言，支持 [Lua 5.3](
 ---
 <br />
 
-- ### 改变当前重力方向为 home 在上 (**accelerometer\.rotate\_home\_on\_top**)
+- ### ~~改变当前重力方向为 home 在上 (**accelerometer\.rotate\_home\_on\_top**)~~
     - 声明  
         ```lua
         accelerometer.rotate_home_on_top()  
@@ -1782,7 +1789,7 @@ XXTouch 使用 [Lua](http://www.lua.org/) 作为脚本语言，支持 [Lua 5.3](
 ---
 <br />
 
-- ### 改变当前重力方向为 home 在下 (**accelerometer\.rotate\_home\_on\_bottom**)
+- ### ~~改变当前重力方向为 home 在下 (**accelerometer\.rotate\_home\_on\_bottom**)~~
     - 声明  
         ```lua
         accelerometer.rotate_home_on_bottom()
@@ -3747,14 +3754,14 @@ XXTouch 使用 [Lua](http://www.lua.org/) 作为脚本语言，支持 [Lua 5.3](
         	return path
         end
         os.execute('uiopen '..sh_escape('http://www.google.com'))
-        os.execute('uiopen '..sh_escape('prefs:root=General&path=ACCESSIBILITY'))
+        os.execute('uiopen '..sh_escape('prefs:root=SAFARI&path=CLEAR_HISTORY_AND_DATA'))
         ```
         
     - 示例  
         ```lua
         app.open_url("http://www.google.com") -- 用 Safari 打开 Google 的主页，当然，不一定打得开
         
-        app.open_url("prefs:root=General&path=ACCESSIBILITY") -- 跳转到 设置--通用--辅助功能
+       app.open_url("prefs:root=SAFARI&path=CLEAR_HISTORY_AND_DATA") -- 跳转到 设置 -> Safari 浏览器 -> 清除历史记录与网站数据
         ```
 
 
@@ -6007,6 +6014,40 @@ Process Identifier（进程标识符）为应用运行期的进程号，是个�
 ---
 <br />
 
+- ### 读取进程队列词典中所有的值 (**proc\_queue\_read**)
+    - 声明  
+        ```lua
+        values = proc_queue_read(key)
+        ```
+    
+    - 参数及返回值  
+        > - key  
+            字符串型，代表键  
+        > - values  
+            顺序表型，返回包含所有值的顺序表，如果队列不存在或为空，则返回空表  
+    
+    - 说明  
+        > **这个函数在 20250106 以后的版本方可使用**  
+        > **所有以 "xxtouch\." 或 "1ferver\." 开头的进程队列词典全部被保留**  
+        > 读取进程队列词典中某个队列所有的值  
+        
+    - 示例  
+        ```lua
+        local billnos = proc_queue_read("billnos")
+        if #billnos~=0 then
+            for i, billno in ipairs(billnos) do
+                print(i, billno)
+            end
+        else
+            print("no bill")
+        end
+        ```
+
+
+
+---
+<br />
+
 - ### 获取进程队列词典的尺寸 (**proc\_queue\_size**)
     - 声明  
         ```lua
@@ -6168,6 +6209,137 @@ Process Identifier（进程标识符）为应用运行期的进程号，是个�
         local billno = proc_queue_pop_back("billnos")
         if billno~="" then
             print(billno)
+        else
+            print("no bill")
+        end
+        ```
+
+
+---
+<br />
+
+- ### 从进程队列词典弹出所有特定值 (**proc\_queue\_pop\_value**)
+    - 声明  
+        ```lua
+        count = proc_queue_pop_value(key, value)
+        ```
+    
+    - 参数及返回值  
+        > - key  
+            字符串型，代表键  
+        > - value  
+            字符串型，将要被弹出的值  
+        > - count  
+            整数型，返回被弹出的值的个数  
+    
+    - 说明  
+        > **这个函数在 20250106 以后的版本方可使用**  
+        > **所有以 "xxtouch\." 或 "1ferver\." 开头的进程队列词典全部被保留**  
+        > 从进程队列词典弹出所有特定值，返回被弹出的特定值的个数  
+        
+    - 示例  
+        ```lua
+        local count = proc_queue_pop_value("billnos", "name")
+        if count ~= 0 then
+            print(count)
+        else
+            print("no bill")
+        end
+        ```
+
+
+---
+<br />
+
+- ### 统计进程队列词典特定值个数 (**proc\_queue\_count\_value**)
+    - 声明  
+        ```lua
+        count = proc_queue_count_value(key, value)
+        ```
+    
+    - 参数及返回值  
+        > - key  
+            字符串型，代表键  
+        > - value  
+            字符串型，需要统计的值  
+        > - count  
+            整数型，返回值的个数  
+    
+    - 说明  
+        > **这个函数在 20250106 以后的版本方可使用**  
+        > **所有以 "xxtouch\." 或 "1ferver\." 开头的进程队列词典全部被保留**  
+        > 统计进程队列词典特定值个数，返回特定值个数  
+        
+    - 示例  
+        ```lua
+        local count = proc_queue_count_value("billnos", "name")
+        if count ~= 0 then
+            print(count)
+        else
+            print("no bill")
+        end
+        ```
+
+
+---
+<br />
+
+- ### 执行进程词典事务代码 (**proc\_dict\_run**)
+    - 声明  
+        ```lua
+        ret, err = proc_dict_run(lua_code)
+        ```
+    
+    - 参数及返回值  
+        > - lua_code  
+            字符串型，需要执行的事务 Lua 代码  
+        > - ret  
+            字符串型 | nil，执行成功返回代码返回的值，执行失败返回 nil  
+        > - err  
+            文本型 | nil，执行成功返回 nil，执行代码发生错误时返回错误信息  
+    
+    - 说明  
+        > **这个函数在 20250427 以后的版本方可使用**  
+        > **所有以 "xxtouch\." 或 "1ferver\." 开头的进程队列词典全部被保留**  
+        > 执行进程词典事务代码，事务代码执行期间，将阻止其它线程访问 proc_ 函数执行  
+        > 单次运行最多不能超过 1000000 行  
+        > 如果执行成功，这段 Lua 代码可以返回一个字符串值  
+        >    这个字符串值将作为返回值返回给调用者  
+        >    如果代码返回 nil，则会返回空字符串给调用者  
+        > 如果执行失败，将返回 nil, 错误信息  
+        <details><summary>运行事务 Lua 代码可以使用如下模块以及如下函数</summary>
+
+            base 模块（不包含 require）  
+            table 模块  
+            string 模块  
+            math 模块  
+            utf8 模块  
+            bit32 模块  
+            json 模块  
+            os.time()  
+            os.clock()  
+            sys.mtime()  
+            utils.gen_uuid()  
+            proc_put(key, value)  
+            proc_get(key)  
+            proc_queue_push_back(key, value)  
+            proc_queue_push_front(key, value)  
+            proc_queue_pop_front(key)  
+            proc_queue_pop_back(key)  
+            proc_queue_pop_value(key, value)  
+            proc_queue_count_value(key, value)  
+            proc_queue_clear(key)  
+            proc_queue_read(key)  
+            proc_queue_size(key)  
+        </details>
+
+	
+        
+    - 示例  
+        ```lua
+        local count = proc_dict_run("billnos", "name")
+        if count ~= 0 then
+            print(count)
         else
             print("no bill")
         end
@@ -11100,6 +11272,7 @@ JSON \(JavaScript Object Notation, JS 对象标记\) 是一种轻量级的数据
 |prefs:root=General&path=ManagedConfigurationList|设置\-通用\-描述文件|
 |prefs:root=General&path=Reset|设置\-通用\-还原|
 
+[更多 设置 相关 URL](https://github.com/FifiTheBulldog/ios-settings-urls/blob/master/settings-urls.md)
 
 
 
