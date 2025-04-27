@@ -6337,11 +6337,26 @@ Process Identifier（进程标识符）为应用运行期的进程号，是个�
         
     - 示例  
         ```lua
-        local count = proc_dict_run("billnos", "name")
-        if count ~= 0 then
-            print(count)
-        else
-            print("no bill")
+        function proc_inc(key, int_value)
+            return proc_dict_run(string.format([[
+                local key = %q
+                local value = %d
+                local ov = proc_get(key)
+                if ov == '' then
+                    ov = 0
+                else
+                    ov = tonumber(ov)
+                end
+                if not ov then
+                    error('not a number')
+                end
+                proc_put(key, tostring(ov + value))
+                return ov
+            ]], key, int_value))
+        end
+
+        for i = 1, 20 do
+            nLog(proc_inc('haha', 10))
         end
         ```
 
