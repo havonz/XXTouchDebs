@@ -67,7 +67,7 @@ XXTouch 使用 [Lua](http://www.lua.org/) 作为脚本语言，支持 [Lua 5.3](
         - 您可以深拷贝全局环境到模块内局部环境以确保安全调用上述模块中所有函数
         - 示例  
             
-            ```
+            ```lua
             -- 在脚本的最前面加上这个代码
             local _ENV = table.deep_copy(_ENV)
             -- 下面就是脚本的主体内容
@@ -80,7 +80,7 @@ XXTouch 使用 [Lua](http://www.lua.org/) 作为脚本语言，支持 [Lua 5.3](
 
         - 示例  
         
-            ```
+            ```lua
             -- 在脚本的最前面加上这个代码
             if been_require then
                 return -- 如果被 require 就直接退出
@@ -1035,27 +1035,57 @@ XXTouch 使用 [Lua](http://www.lua.org/) 作为脚本语言，支持 [Lua 5.3](
 - ### 屏幕找图 (**screen\.find\_image**)
     - 声明  
         ```lua
-        横坐标, 纵坐标 = screen.find_image(图片 [, 相似度, 左, 上, 右, 下 ])
+        横坐标, 纵坐标 = screen.find_image(图片 [, 可信度, 左, 上, 右, 下 ])
+        查找结果 = screen.find_image(图片 [, 选项, 左, 上, 右, 下 ])
         ```
     
     - 参数及返回值  
-        > - 图片  
+        - 图片  
             * 字符串型  
                 需要找的图片，可以是 png 或是 jpeg 格式的图片数据  
             * 图片对象  
                 或是一个图片对象（可参考 [图片对象模块（image）](#图片对象模块image)）  
-            * 文本型 \*1\.1\.2\-1 新增  
+            * 文本型  
                 需要找的图片文件路径，如果不是合法路径则会以数据方式解析  
-        > - 相似度  
-            整数型，可选参数，需要找的图片的相似度，范围 1~100，默认为 95  
-        > - 左, 上, 右, 下  
-            整数型，可选参数，搜索区域，默认 全屏  
-        > - 横坐标, 纵坐标  
-            整数型，返回找到的图片的左上角坐标，搜索失败返回 \-1, \-1  
+        - 可信度 : 整数型 | 选项 : 表型   
+            可选参数，默认是数字 95，它表示找到的位置的可信度不小于 95 才会返回。可信度取值范围 0.0 ~ 100.0  
+            <details><summary>如果是一个表，则它的结构如下</summary>
+            
+            ```lua
+            {
+                find_all = false | true, -- 可选参数，当该参数为 true 时，返回值为一个表。默认为 false
+                confidence_threshold = number_value(0.0 ~ 100.0), -- 可选参数，可信度超过该值的结果视为有效。默认 95
+                downscale = number_value(0.1 ~ 1.0), -- 可选参数，值越小速度越快精度越低。默认 1.0 精度优先
+                mask = image_object, -- 可选参数，标注需要查找的图片都有效区域，是一张与 img 尺寸相同的二值化图片，白色为有效区域，黑色为无效区域。默认 img 所有区域都有效
+            }
+            ```
+            </details>
+        - 左, 上, 右, 下 : 整数型, 整数型, 整数型, 整数型    
+            可选参数，搜索区域，默认 全屏  
+        - 横坐标, 纵坐标 : 整数型, 整数型  
+            当 options 是一个数字或 options.find_all 不为 true 时，返回仅返回符合要求的最可信的结果坐标。若未找到任何可信度满足的坐标，则返回 -1, -1  
+        - 查找结果 : 表型  
+            <details><summary>当 options.find_all 为 true 时，返回可信度不小于 options.confidence_threshold 的多个值</summary>
+
+            ```lua
+            {
+                {
+                    x = integer_value,
+                    y = integer_value,
+                    confidence = number_value(0.0 ~ 100.0),
+                },
+                ...
+            }
+            ```
+            </details>
     
     - 说明  
         > 在屏幕上寻找一个图像的位置，该函数会引用 image\.cv 模块  
         > **注意：** 如果需要做多分辨率兼容，那么建议是于分辨率最小的设备上截图；大分辨率上的截图会无法在小分辨率设备上找到  
+        1.3.8 以上版本中增强：  
+            允许使用 find_all 模式找到图像中所有超过可信度阈值的匹配项  
+            允许使用 downscale 字段设置将图像精度降低查找以提升找图速度  
+            允许使用 mask 标注图片中的有效区域以实现查找不规则形状图像  
         
     - 示例  
         [XXT 取色器 1.0.25 Windows 版.7z](https://raw.githubusercontent.com/havonz/XXTouchDebs/master/%E7%9B%B8%E5%85%B3%E8%B5%84%E6%BA%90/XXT%20%E5%8F%96%E8%89%B2%E5%99%A8%201.0.25%20For%20Windows.7z)
@@ -1072,6 +1102,14 @@ XXTouch 使用 [Lua](http://www.lua.org/) 作为脚本语言，支持 [Lua 5.3](
         
         -- 示例 4（1.1.2-1 新增）：
         x, y = screen.find_image("/User/1.png", 95, 0, 0, 639, 1135)
+
+        -- 示例 5（1.3.8 新增）这是全屏找多个目标
+        img = image.load_file(XXT_SCRIPTS_PATH..'/1.png')
+        rets = screen.find_image(img, {
+            confidence_threshold = 90, -- 可信度大于这个值的结果有效
+            downscale = 0.5, -- 降低精度提速
+            find_all = true, -- 表示返回所有有效结果的一个表
+        }, 0, 0, 0, 0) -- 0, 0, 0, 0 区域表示全屏
         ```
         **说明**：在 Lua 源码中，字符串中 `\x` 开头，后面跟两位 16 进制数表示以该数字编码的单个字节。例如：`\x58` 表示 `X` 这个字符，可打印字符部分参考[《ASCII 编码》](https://baike.baidu.com/item/ASCII/309296)
     
@@ -1104,6 +1142,7 @@ XXTouch 使用 [Lua](http://www.lua.org/) 作为脚本语言，支持 [Lua 5.3](
 <br />
 <br />
 <br />
+
 ## 模拟触摸模块（touch）
 
 - ### \! 模拟手指轻触一次屏幕 (**touch\.tap**)
@@ -4791,27 +4830,27 @@ Process Identifier（进程标识符）为应用运行期的进程号，是个�
 - ### 加入到一个无线局域网 (**device\.join\_wifi**)
     - 声明  
         ```lua
-        device.join_wifi(SSID, 密码, 加密类型)
+        操作成败, 错误信息 = device.join_wifi(SSID, 密码[, 超时毫秒])
         ```
     
     - 参数及返回值  
-        > - SSID  
+        - SSID  
             文本型，无线局域网的 SSID，也就是名字  
-        > - 密码  
+        - 密码  
             文本型，无线局域网的密码  
-        > - 加密类型  
-            整数型，加密类型，可以是  
-                `0` \- 不加密网络  
-                `1` \- 有密码网络  
+        - 超时毫秒  
+            整数型，可选参数，超时的毫秒数，默认 10000  
+        - 操作成败  
+            布尔型，操作成功返回 true，操作失败返回 false
+        - 错误信息
+            文本型，操作失败时返回错误信息
     
     - 说明  
-        > **这个函数在 1\.2\-1 版以上方可使用**  
-        > **这个函数不支持 iOS 10 及以上版本操作系统**  
-        **注意**：加入无线局域网可能会需要较长时间，也可能加入失败，请自行写代码延迟并判断  
+        **这个函数在 20250317 以后的版本改为同步函数**  
         
     - 示例  
         ```lua
-        device.join_wifi('Tenda_9B3F', '123456', 1)
+        local ok, err = device.join_wifi('Tenda_9B3F', '12345678')
         ```
 
 
