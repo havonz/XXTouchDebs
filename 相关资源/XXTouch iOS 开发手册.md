@@ -11328,9 +11328,9 @@ JSON \(JavaScript Object Notation, JS 对象标记\) 是一种轻量级的数据
 
 ### "[os.execute](http://cloudwu.github.io/lua53doc/manual.html#pdf-os.execute)" 相关示例代码
 
-`os.execute` 依赖于 Shell，iOS 越狱环境的 Shell 可能是 `Bash` 或 `Zsh`
-巨魔版 XXTouch 不能使用 `os.execute`
-建议能不使用 `os.execute` 就不用
+`os.execute` 依赖于 Shell，iOS 越狱环境的 Shell 可能是 `Bash` 或 `Zsh`  
+巨魔版 XXTouch 不能使用 `os.execute`  
+建议能不使用 `os.execute` 就不用  
 
 #### 重启设备
 ```lua
@@ -11366,6 +11366,7 @@ lfs.link('/private/var/mobile/Media/1ferver/log/sys.log', '/private/var/mobile/M
 --[[
     删除文件 文件删除 删除目录 重命名文件 文件重命名 移动文件 文件移动 新建目录 创建目录 新建文件夹 创建文件夹
     以上是关键词，便于在手册中搜索到此处。以下封装已不建议使用
+    建议使用 file.move、file.copy、file.remove、sys.mkdir_p 替代
 --]]
 
 local function sh_escape(path) -- XXTouch 原创函数，未经 XXTouch 许可，可以用于商业用途
