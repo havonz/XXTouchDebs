@@ -487,8 +487,8 @@ XXTouch 使用 [Lua](http://www.lua.org/) 作为脚本语言，支持 [Lua 5.3](
     
     - 小知识  
         > - 针对同一位置两行连续单独的 screen\.get\_color 调用可能取到不同的值  
-        > - screen\.keep 的情况下 screen\.get\_color 单独调用耗时会超过一次 screen\.keep 的耗时  
-        > - 调用 screen\.keep 之后，再连续调用 50 次 screen\.get\_color 耗时可以等同于调用一次 screen\.keep  
+        > - 不使用 screen\.keep 的情况下 screen\.get\_color 单独调用耗时约等于一次 screen\.keep 的耗时  
+        > - 调用 screen\.keep 之后，再连续调用 50 次 screen\.get\_color 耗时约等于调用一次 screen\.keep  
 
 
 
