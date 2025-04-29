@@ -470,19 +470,18 @@ XXTouch 使用 [Lua](http://www.lua.org/) 作为脚本语言，支持 [Lua 5.3](
         
     - 示例  
         ```lua
-        -- 遍历屏幕区块
+        -- 循环取 6144 个点的颜色输出到日志
+        t = {}
         screen.keep()
         for k = 1, 640, 10 do
             for j = 1, 960, 10 do
                 --格式化为十六进制文本
-                color = string.format("%X", screen.get_color(k, j));
-                --输出到系统日志
-                sys.log("("..k..", "..j..") Color: "..color..".");
+                t[#t + 1] = string.format("%X", screen.get_color(k, j))
             end
         end
         screen.unkeep()
+        nLog(t)
         ```
-        **注**：上述代码中使用了非本章函数 [`sys.log`](#输出标准系统日志-syslog)  
     
     
     - 小知识  
