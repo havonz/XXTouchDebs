@@ -10850,7 +10850,7 @@ JSON \(JavaScript Object Notation, JS 对象标记\) 是一种轻量级的数据
     local socket = require("socket")
     local sock = socket.tcp()
     sock:settimeout(0.2) -- 设置连接超时秒数
-    if (sock:connect("220.181.57.217", 80)) then
+    if (sock:connect("119.29.29.29", 53)) then
         sock:close() -- 关闭连接
         sys.alert("能连上")
     else
@@ -11328,24 +11328,36 @@ JSON \(JavaScript Object Notation, JS 对象标记\) 是一种轻量级的数据
 
 ### "[os.execute](http://cloudwu.github.io/lua53doc/manual.html#pdf-os.execute)" 相关示例代码
 
+`os.execute` 依赖于 Shell，iOS 越狱环境的 Shell 可能是 `Bash` 或 `Zsh`
+巨魔版 XXTouch 不能使用 `os.execute`
+建议能不使用 `os.execute` 就不用
+
 #### 重启设备
 ```lua
-os.execute('reboot')
+-- os.execute('reboot')
+-- 建议使用如下调用替代
+sys.reboot()
 ```
 
 #### 注销设备
 ```lua
-os.execute('killall -9 SpringBoard;killall -9 backboardd')
+-- os.execute('killall -9 SpringBoard;killall -9 backboardd')
+-- 建议使用如下调用替代
+sys.killall(9, 'SpringBoard', 'backboardd')
 ```
 
 #### 重建图标缓存
 ```lua
-os.execute('su mobile -c uicache')
+-- os.execute('su mobile -c uicache')
+-- 建议使用如下调用替代
+clear.caches()
 ```
 
 #### 创建脚本日志连接到脚本目录
 ```lua
-os.execute('ln -s /private/var/mobile/Media/1ferver/log/sys.log /private/var/mobile/Media/1ferver/lua/scripts/脚本日志.txt')
+-- os.execute('ln -s /private/var/mobile/Media/1ferver/log/sys.log /private/var/mobile/Media/1ferver/lua/scripts/脚本日志.txt')
+-- 建议使用如下调用替代
+lfs.link('/private/var/mobile/Media/1ferver/log/sys.log', '/private/var/mobile/Media/1ferver/lua/scripts/脚本日志.txt', true)
 ```
 
 
@@ -11353,7 +11365,7 @@ os.execute('ln -s /private/var/mobile/Media/1ferver/log/sys.log /private/var/mob
 ```lua
 --[[
     删除文件 文件删除 删除目录 重命名文件 文件重命名 移动文件 文件移动 新建目录 创建目录 新建文件夹 创建文件夹
-    以上是关键词，便于在手册中搜索到此处
+    以上是关键词，便于在手册中搜索到此处。以下封装已不建议使用
 --]]
 
 local function sh_escape(path) -- XXTouch 原创函数，未经 XXTouch 许可，可以用于商业用途
@@ -11388,7 +11400,7 @@ function openurl(url) -- 跳转到一个链接
     os.execute('uiopen '..sh_escape(url))
 end
 
--- 以上是封装好的函数，拷贝到自己脚本前就可以用。
+-- 以上是封装好的函数，拷贝到自己脚本前就可以用。（以上封装已不建议使用）
 -- 以下是使用方式（不用拷贝）
 
 -- 删除 /var/mobile/1.png
