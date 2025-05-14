@@ -1,3 +1,5 @@
+local scale = screen.scale_factor() / 2
+
 webview.show{
 	html = [[
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -45,14 +47,19 @@ webview.show{
 	</body>
 	</html>
 	]],
-	x = 30,
-	y = 570,
-	width = 100,
-	height = 100,
-	corner_radius = 10,
+	x = 30 * scale,
+	y = 100 * scale,
+	width = 100 * scale,
+	height = 100 * scale,
+	corner_radius = 10 * scale,
 	alpha = 0.7,
 	animation_duration = 0.3,
-	rotate = rotate_ang,
+	rotate = ({
+		[0] = 0,
+		[1] = 90,
+		[2] = 270,
+		[3] = 180
+	})[screen.current_init_orien()],
 	can_drag = true,
 	opaque = false,
 	id = 2,
