@@ -91,6 +91,9 @@
 		cfg.value = 1
 		a = cfg.value
 
+	说明：
+		XXTDo.runloop 每一轮匹配都会使用一次 screen.keep() 然后再进行界面匹配，因此，如果匹配的 run 动作中若有操作会引起画面变动并需要进一步判断，可在 run 动作中再次使用 screen.keep() 以获取最新的屏幕状态
+
 	------------------------------------
 	v0.8.1 [2025-03-01]:
 		修正 name、timeout_s 和 group 为空时判断问题
