@@ -979,7 +979,7 @@ XXTouch 使用 [Lua](http://www.lua.org/) 作为脚本语言，支持 [Lua 5.3](
         > 如果需要做简体中文或是其它语言文字识别  
         > 需要手动导入相关的字库文件到设备的 `/var/mobile/Media/1ferver/tessdata/` 目录  
         > 这里提供 [简体中文字库（点击下载）](https://github.com/havonz/XXTouchDebs/blob/master/%E7%9B%B8%E5%85%B3%E8%B5%84%E6%BA%90/chi_sim.traineddata.gz)  
-        > **软件版本在 1.3.8 以上方支持 Apple 和 PaddleLite 识别引擎** 
+        > **软件版本在 1.3.8 以上方支持 Apple 和 PaddleLite 识别引擎**  
         
     - 示例  
         ```lua
@@ -3360,7 +3360,7 @@ XXTouch 使用 [Lua](http://www.lua.org/) 作为脚本语言，支持 [Lua 5.3](
             文本型，通知的内容  
     
     - 说明  
-        > **需要在 Cydia 或者 Sileo 安装基础依赖 “libbulletin” 方可使用**  
+        > **需要完整越狱环境，并在 Cydia 或者 Sileo 安装基础依赖 “libbulletin” 方可使用**  
         
     - 示例  
         ```lua
@@ -10852,8 +10852,8 @@ JSON \(JavaScript Object Notation, JS 对象标记\) 是一种轻量级的数据
 ### 开发及周边工具下载
 
 - Windows 平台工具
-    > - [XXT_编辑器-20250421_Windows_版.zip](https://raw.githubusercontent.com/havonz/XXTouchDebs/master/%E7%9B%B8%E5%85%B3%E8%B5%84%E6%BA%90/XXT-%E7%BC%96%E8%BE%91%E5%99%A8-Win-20250421125905.zip)  
-    > - [XXT_编辑器-20250421_macOS_版.zip](https://raw.githubusercontent.com/havonz/XXTouchDebs/master/%E7%9B%B8%E5%85%B3%E8%B5%84%E6%BA%90/XXT-%E7%BC%96%E8%BE%91%E5%99%A8-macOS-20250421125905.zip)  
+    > - [XXT_编辑器-20250421_Windows_版.zip](https://raw.githubusercontent.com/havonz/XXTouchDebs/master/%E7%9B%B8%E5%85%B3%E8%B5%84%E6%BA%90/XXT-%E7%BC%96%E8%BE%91%E5%99%A8-Win-2025052501.zip)  
+    > - [XXT_编辑器-20250421_macOS_版.zip](https://raw.githubusercontent.com/havonz/XXTouchDebs/master/%E7%9B%B8%E5%85%B3%E8%B5%84%E6%BA%90/XXT-%E7%BC%96%E8%BE%91%E5%99%A8-macOS-2025052501.zip)  
     > - [XXT 取色器 1.0.25 Windows 版.7z](https://raw.githubusercontent.com/havonz/XXTouchDebs/master/%E7%9B%B8%E5%85%B3%E8%B5%84%E6%BA%90/XXT%20%E5%8F%96%E8%89%B2%E5%99%A8%201.0.25%20For%20Windows.7z)  
     > - [XXT 取色器 1.0.25 macOS 版 (depends JRE).zip](https://raw.githubusercontent.com/havonz/XXTouchDebs/master/%E7%9B%B8%E5%85%B3%E8%B5%84%E6%BA%90/XXT%20%E5%8F%96%E8%89%B2%E5%99%A8%201.0.25%20For%20macOS%20(depends%20JRE).zip)  
     > - [XXT_局域网集中控制器_2.7.6.4](https://raw.githubusercontent.com/havonz/XXTouchDebs/master/%E7%9B%B8%E5%85%B3%E8%B5%84%E6%BA%90/XXT_%E5%B1%80%E5%9F%9F%E7%BD%91%E6%8E%A7%E5%88%B6%E5%99%A8_V2.7.6.4.zip)  
