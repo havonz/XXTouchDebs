@@ -978,7 +978,7 @@ XXTouch 使用 [Lua](http://www.lua.org/) 作为脚本语言，支持 [Lua 5.3](
         > XXTouch 已内置 eng 识别库 \[A\-Za\-z0\-9\] 能识别常规英文和数字  
         > 如果需要做简体中文或是其它语言文字识别  
         > 需要手动导入相关的字库文件到设备的 `/var/mobile/Media/1ferver/tessdata/` 目录  
-        > 这里提供 [简体中文字库（点击下载）](https://github.com/havonz/XXTouchDebs/blob/master/%E7%9B%B8%E5%85%B3%E8%B5%84%E6%BA%90/chi_sim.traineddata.gz)  
+        > 这里提供 [简体中文字库压缩包（需要解压缩）](https://github.com/havonz/XXTouchDebs/blob/master/%E7%9B%B8%E5%85%B3%E8%B5%84%E6%BA%90/chi_sim.traineddata.7z)  
         > **软件版本在 1.3.8 以上方支持 Apple 和 PaddleLite 识别引擎**  
         
     - 示例  
@@ -5751,7 +5751,7 @@ Process Identifier（进程标识符）为应用运行期的进程号，是个�
         > 性能上，该函数操作过程不产生数据拷贝  
         > 如果需要做简体中文或是其它语言文字识别  
         > 需要手动导入相关的字库文件到设备的 ```/var/mobile/Media/1ferver/tessdata/``` 目录  
-        > 这里提供 [简体中文字库（点击下载）](https://github.com/havonz/XXTouchDebs/blob/master/%E7%9B%B8%E5%85%B3%E8%B5%84%E6%BA%90/chi_sim.traineddata.gz)  
+        > 这里提供 [简体中文字库压缩包（需要解压缩）](https://github.com/havonz/XXTouchDebs/blob/master/%E7%9B%B8%E5%85%B3%E8%B5%84%E6%BA%90/chi_sim.traineddata.7z)  
         > 如果想自己进行 tesseract 字库训练可以 [百度搜索“tesseract 训练”](https://www.baidu.com/s?wd=tesseract%20训练)  
         
     - 示例  
