@@ -1087,7 +1087,7 @@ XXTouch 使用 [Lua](http://www.lua.org/) 作为脚本语言，支持 [Lua 5.3](
             允许使用 mask 标注图片中的有效区域以实现查找不规则形状图像  
         
     - 示例  
-        [XXT 取色器 1.0.25 Windows 版.7z](https://raw.githubusercontent.com/havonz/XXTouchDebs/master/%E7%9B%B8%E5%85%B3%E8%B5%84%E6%BA%90/XXT%20%E5%8F%96%E8%89%B2%E5%99%A8%201.0.25%20For%20Windows.7z)
+        [XXT 取色器 1.0.29 Windows 版.7z](https://raw.githubusercontent.com/havonz/XXTouchDebs/master/%E7%9B%B8%E5%85%B3%E8%B5%84%E6%BA%90/XXT%20%E5%8F%96%E8%89%B2%E5%99%A8%201.0.29%20For%20Windows.7z)
         ```lua
         -- 示例 1（使用 XXT 取色器 Shift + 鼠标左键框选图像上的区域 可直接生成这样的代码）：
         x, y = screen.find_image( -- 原图位置 左上: 354, 274 | 右下: 358, 284
@@ -10854,8 +10854,8 @@ JSON \(JavaScript Object Notation, JS 对象标记\) 是一种轻量级的数据
 - Windows 平台工具
     > - [XXT_编辑器-20250421_Windows_版.zip](https://raw.githubusercontent.com/havonz/XXTouchDebs/master/%E7%9B%B8%E5%85%B3%E8%B5%84%E6%BA%90/XXT-%E7%BC%96%E8%BE%91%E5%99%A8-Win-2025052501.zip)  
     > - [XXT_编辑器-20250421_macOS_版.zip](https://raw.githubusercontent.com/havonz/XXTouchDebs/master/%E7%9B%B8%E5%85%B3%E8%B5%84%E6%BA%90/XXT-%E7%BC%96%E8%BE%91%E5%99%A8-macOS-2025052501.zip)  
-    > - [XXT 取色器 1.0.25 Windows 版.7z](https://raw.githubusercontent.com/havonz/XXTouchDebs/master/%E7%9B%B8%E5%85%B3%E8%B5%84%E6%BA%90/XXT%20%E5%8F%96%E8%89%B2%E5%99%A8%201.0.25%20For%20Windows.7z)  
-    > - [XXT 取色器 1.0.25 macOS 版 (depends JRE).zip](https://raw.githubusercontent.com/havonz/XXTouchDebs/master/%E7%9B%B8%E5%85%B3%E8%B5%84%E6%BA%90/XXT%20%E5%8F%96%E8%89%B2%E5%99%A8%201.0.25%20For%20macOS%20(depends%20JRE).zip)  
+    > - [XXT 取色器 1.0.29 Windows 版.7z](https://raw.githubusercontent.com/havonz/XXTouchDebs/master/%E7%9B%B8%E5%85%B3%E8%B5%84%E6%BA%90/XXT%20%E5%8F%96%E8%89%B2%E5%99%A8%201.0.29%20For%20Windows.7z)  
+    > - [XXT 取色器 1.0.29 macOS 版 (depends JRE).zip](https://raw.githubusercontent.com/havonz/XXTouchDebs/master/%E7%9B%B8%E5%85%B3%E8%B5%84%E6%BA%90/XXT%20%E5%8F%96%E8%89%B2%E5%99%A8%201.0.29%20For%20macOS%20(depends%20JRE).zip)  
     > - [XXT_局域网集中控制器_2.7.6.4](https://raw.githubusercontent.com/havonz/XXTouchDebs/master/%E7%9B%B8%E5%85%B3%E8%B5%84%E6%BA%90/XXT_%E5%B1%80%E5%9F%9F%E7%BD%91%E6%8E%A7%E5%88%B6%E5%99%A8_V2.7.6.4.zip)  
     > - ~~XXT 网络授权 1.12.0.1.zip-2397.9kB~~  
     > - ~~大漠综合工具.zip-1520.5kB~~  
