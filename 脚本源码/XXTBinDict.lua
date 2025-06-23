@@ -9,6 +9,7 @@
     可配合 XXTColorPicker 1.0.28 以上集成的 XXT-Bin-Dict 自定义格式开发
 
     更新日志：
+    0.2.2 2025-06-23 修正 touchelf_dict_init
     0.2.1 2025-06-01 修正 image_find 和 screen_find 不支持 auto 模式二值化的问题
     0.2.0 2025-05-31 支持 XXTColorPicker 1.0.29 内置的 XXT-Bin-Dict 的 auto 模式的二值化选项
     0.1.0 2025-05-29 初始版本
@@ -29,10 +30,10 @@
     x, y = dict:image_find(image.load_file(XXT_SCRIPTS_PATH.."/1.png"), "LINE", {confidence_threshold = 90})
 
     识别屏幕(区域)所有的字典中有的词：
-    local text, info = dict:screen_ocr(可信度, 左, 上, 右, 下)
+    local text, info = dict:screen_ocr(百分制可信度, 左, 上, 右, 下)
 
     识别图片上所有的字典中有的词：
-    local text, info = dict:image_ocr(image.load_file(XXT_SCRIPTS_PATH.."/1.png"), 可信度)
+    local text, info = dict:image_ocr(image.load_file(XXT_SCRIPTS_PATH.."/1.png"), 百分制可信度)
 --]]
 
 if sys.xtversion():compare_version("1.3.8-20250501000000") < 0 then
@@ -233,7 +234,7 @@ local _xxt_dict_meta = {
 }
 
 local _M = {
-    _VERSION = "0.2.1";
+    _VERSION = "0.2.2";
 }
 
 function _M.init(...)
@@ -316,7 +317,7 @@ function _M.touchelf_dict_init(...)
             csim_algorithm = 2;
             white_background = true;
         }
-        for _,te_v_binopt in ipairs(te_v) do
+        for _,te_v_binopt in ipairs(te_v[2]) do
             binopt[#binopt + 1] = {te_v_binopt, te_v[3]}
         end
         local img = image.load_data(te_v[4]:base64_decode())
