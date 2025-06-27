@@ -9,6 +9,7 @@
     可配合 XXTColorPicker 1.0.28 以上集成的 XXT-Bin-Dict 自定义格式开发
 
     更新日志：
+    0.2.3 2025-06-27 修正区域找目标没找到也会返回一个正数坐标的问题
     0.2.2 2025-06-23 修正 touchelf_dict_init
     0.2.1 2025-06-01 修正 image_find 和 screen_find 不支持 auto 模式二值化的问题
     0.2.0 2025-05-31 支持 XXTColorPicker 1.0.29 内置的 XXT-Bin-Dict 的 auto 模式的二值化选项
@@ -79,8 +80,10 @@ local function _xxt_dict_image_find(...) -- (self, img, name, opt, start_x, star
     end
     local found_rets = {bin_img:find_image(info[3], opt)}
     if type(found_rets[1]) == 'number' then
-        found_rets[1] = found_rets[1] + start_x
-        found_rets[2] = found_rets[2] + start_y
+        if found_rets[1] > 0 then
+            found_rets[1] = found_rets[1] + start_x
+            found_rets[2] = found_rets[2] + start_y
+        end
     else
         for _, v in ipairs(found_rets[1]) do
             v.x = v.x + start_x
@@ -113,8 +116,10 @@ local function _xxt_dict_image_detect(...) -- (self, img, opt, start_x, start_y)
         local width, height = dict_v[3]:size()
         local found_rets = {bin_img:find_image(dict_v[3], opt)}
         if type(found_rets[1]) == 'number' then
-            local ret = {name = dict_v[1], width = width, height = height, x = found_rets[1] + start_x, y = found_rets[2] + start_y, confidence = opt}
-            rets[#rets + 1] = ret
+            if found_rets[1] > 0 then
+                local ret = {name = dict_v[1], width = width, height = height, x = found_rets[1] + start_x, y = found_rets[2] + start_y, confidence = opt}
+                rets[#rets + 1] = ret
+            end
         else
             for _, found_v in ipairs(found_rets[1]) do
                 local ret = {name = dict_v[1], width = width, height = height, x = found_v.x + start_x, y = found_v.y + start_y}
@@ -234,7 +239,7 @@ local _xxt_dict_meta = {
 }
 
 local _M = {
-    _VERSION = "0.2.2";
+    _VERSION = "0.2.3";
 }
 
 function _M.init(...)
