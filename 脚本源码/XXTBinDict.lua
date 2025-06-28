@@ -9,6 +9,7 @@
     可配合 XXTColorPicker 1.0.28 以上集成的 XXT-Bin-Dict 自定义格式开发
 
     更新日志：
+    0.2.4 2025-06-28 优化 screen_ocr、image_ocr 识别文字排序
     0.2.3 2025-06-27 修正区域找目标没找到也会返回一个正数坐标的问题
     0.2.2 2025-06-23 修正 touchelf_dict_init
     0.2.1 2025-06-01 修正 image_find 和 screen_find 不支持 auto 模式二值化的问题
@@ -148,19 +149,41 @@ local function _xxt_dict_image_ocr(...) -- (self, img, confidence_threshold, sta
             height = v.height,
             x = v.x,
             y = v.y,
+            top = v.y,
+            bottom = v.y + v.height - 1,
+            left = v.x,
+            right = v.x + v.width - 1
         }
     end
     table.sort(rets, function(a, b)
-        if a.y < b.y then
+        if a.bottom < b.top then
             return true
-        elseif a.y > b.y then
-            return false
+        end
+        local function ex_test(a, b)
+            if a.right < b.left then
+                return true
+            else
+                if ((b.left - a.left) / a.width) > ((b.top - a.top) / a.height) then
+                    return true
+                else
+                    return false
+                end
+            end
+        end
+        if a.top < b.top then
+            return ex_test(a, b)
+        elseif a.top > b.top then
+            return not ex_test(b, a)
         end
         return a.x < b.x
     end)
     local texts_buf = {}
     for i, v in ipairs(rets) do
         texts_buf[#texts_buf + 1] = v.text
+        v.top = nil
+        v.bottom = nil
+        v.left = nil
+        v.right = nil
     end
     return table.concat(texts_buf, '\t'), rets
 end
@@ -239,7 +262,7 @@ local _xxt_dict_meta = {
 }
 
 local _M = {
-    _VERSION = "0.2.3";
+    _VERSION = "0.2.4";
 }
 
 function _M.init(...)
