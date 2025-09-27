@@ -251,6 +251,8 @@ Default 键在 Windows 为 Ctrl 键，在 macOS 为 Command 键
     hexstr = string.toHex(str)
     str = string.fromHex(hexstr)
         使用 16 进制数文本编码/解码字符串
+    devapi = getConnectedDeviceAPI()
+        获取当前连接设备的 API URL
     File = Java.class("java.io.File")
         获取一个 Java 类的操作对象
     newRunnable = Java.imple("java.lang.Runnable", {run = function() end})
