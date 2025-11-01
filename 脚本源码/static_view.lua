@@ -239,7 +239,7 @@ local shared_defined = lua_closure_dump(function()
 				sharedToastWindow.setRootViewController(rootVC)()
 				sharedToastWindow.setWindowLevel(2052)()
 				sharedToastWindow.setHidden(0)()
-				setWindowActive(sharedWindow)
+				setWindowActive(sharedToastWindow)
 				sharedToastWindow.addSubview(sharedSecureView)()
 			else
 				rootVC = UIApp.keyWindow().rootViewController()
@@ -278,6 +278,7 @@ else
 	end
 end
 
+local cpdistributed_messaging_center_send_message = cpdistributed_messaging_center_send_message
 local toast_service_run_script = toast_service_run_script
 
 local function rect_rotate90(x, y, width, height, orientation)
@@ -784,6 +785,12 @@ function new_image_label(...)
 	})
 end
 
+function kill_toast_service()
+	if sys.cfversion() >= 1673.126 then
+		cpdistributed_messaging_center_send_message("xxtouch.toast-service-center", "eval-script", {script = "os.exit(0)"})
+	end
+end
+
 function edges_to_rect(left, top, right, bottom)
 	return {x = left, y = top, width = right - left, height = bottom - top}
 end
@@ -800,7 +807,8 @@ if true then
 		new_rectangle_border = new_rectangle_border,
 		edges_to_rect = edges_to_rect,
 		rect_to_edges = rect_to_edges,
-		_VERSION = "0.2.1",
+		kill_toast_service = kill_toast_service,
+		_VERSION = "0.2.2",
 		_AUTHOR = "havonz",
 	}
 end
