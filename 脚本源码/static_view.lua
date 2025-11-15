@@ -9,6 +9,16 @@
 	-- iOS 13.2 以上可以在安全模式下使用，并且支持 secure 属性
 	-- 阅读源码需要有 Objective-C 和 Lua 基础
 
+	-- 2025-11-15 版本更新 0.2.3：
+	-- 给 new_rectangle_border、new_text_label、new_image_label 三个函数添加了 background_color 属性
+	-- new_rectangle_border 的 color 属性现在支持 ARGB 颜色值，可以设置边框的透明度
+	-- new_text_label 的 text_color 属性现在支持 ARGB 颜色值，可以设置文本的透明度
+	-- 增加 init 和 remove_all_views 函数，分别用于初始化静态视图服务和清理掉所有的控件
+
+	-- 2025-11-01 版本更新 0.2.2：
+	-- 修正 13.2 以下设备不正常的问题
+	-- 增加 kill_toast_service 函数，可以手动停止 toast 服务以释放内存
+
 	-- 2025-02-21 版本更新 0.2.1：
 	-- 优化在新版 XXT 中使用内建 API 发送通知消息
 
@@ -21,16 +31,23 @@
 	-- 引用 static_view 模块
 	local static_view = require('static_view')
 
+	-- 初始化静态视图服务，可以不手动执行，模块在创建第一个控件时会自动初始化，显式初始化可以避免创建第一个控件时的延迟
+	static_view.init()
+
+	-- 终止静态视图服务，清理掉所有的控件，释放内存，脚本结束时会自动执行
+	static_view.remove_all_views()
+
 	-- 在屏幕上创建一个四边形方框
 	border = static_view.new_rectangle_border{
-		width = 143,      -- 可读写属性，方框宽度
-		height = 143,     -- 可读写属性，方框高度
-		x = 45,           -- 可选参数，可读写属性，左上角横坐标，默认 0
-		y = 231,          -- 可选参数，可读写属性，左上角纵坐标，默认 0
-		size = 2,         -- 可选参数，可读写属性，边框粗细尺寸，默认 2
-		color = 0xFF0000, -- 可选参数，可读写属性，边框颜色，默认 0xFF0000
-		orientation = 0,  -- 可选参数，可读写属性，参考坐标系方向，0 - 竖屏 Home 在下，1 - 横屏 Home 在右，2 - 横屏 Home 在左，3 - 竖屏 Home 在上，默认为 screen.init 初始化的那个方向
-		secure = false,   -- 可选参数，只读属性，为 true 则截屏录屏取色会忽略这个视图，默认为 false
+		width = 143,          -- 可读写属性，方框宽度
+		height = 143,         -- 可读写属性，方框高度
+		x = 45,               -- 可选参数，可读写属性，左上角横坐标，默认 0
+		y = 231,              -- 可选参数，可读写属性，左上角纵坐标，默认 0
+		size = 2,             -- 可选参数，可读写属性，边框粗细尺寸，默认 2
+		color = 0xFF0000,   -- 可选参数，可读写属性，边框颜色，默认 0xFFFFFF
+		background_color = 0, -- 可选参数，可读写属性，背景颜色，默认 0（透明），需要注意的是 0xFF000000 表示黑色，0 - 透明，0xFF000000 - 黑色，其他值表示 ARGB 颜色值，例如 0x80FF0000 表示半透明红色
+		orientation = 0,      -- 可选参数，可读写属性，参考坐标系方向，0 - 竖屏 Home 在下，1 - 横屏 Home 在右，2 - 横屏 Home 在左，3 - 竖屏 Home 在上，默认为 screen.init 初始化的那个方向
+		secure = false,       -- 可选参数，只读属性，为 true 则截屏录屏取色会忽略这个视图，默认为 false
 	}
 
 	-- 属性读写
@@ -53,7 +70,8 @@
 		text = 'Hello',           -- 可读写属性，文本内容
 		x = 300,                  -- 可选参数，可读写属性，左上角横坐标，默认 0
 		y = 300,                  -- 可选参数，可读写属性，左上角纵坐标，默认 0
-		text_color = 0xFF0000,    -- 可选参数，可读写属性，文本颜色，默认 0xFF0000
+		text_color = 0xFF0000,  -- 可选参数，可读写属性，文本颜色，默认 0xFFFFFF
+		background_color = 0,     -- 可选参数，可读写属性，背景颜色，默认 0（透明），需要注意的是 0xFF000000 表示黑色，0 - 透明，0xFF000000 - 黑色，其他值表示 ARGB 颜色值，例如 0x80FF0000 表示半透明红色
 		font_name = 'Helvetica',  -- 可选参数，可读写属性，文本字体，默认 'Helvetica'
 		font_size = 12,           -- 可选参数，可读写属性，文本字体尺寸，默认 12
 		orientation = 0,          -- 可选参数，可读写属性，参考坐标系方向，0 - 竖屏 Home 在下，1 - 横屏 Home 在右，2 - 横屏 Home 在左，3 - 竖屏 Home 在上，默认为 screen.init 初始化的那个方向
@@ -77,13 +95,14 @@
 	
 	-- 在屏幕上创建一个图像标签
 	img_label = static_view.new_image_label{
-		image = img,      -- 可读写属性，图像内容
-		width = 143,      -- 可读写属性，方框宽度
-		height = 143,     -- 可读写属性，方框高度
-		x = 45,           -- 可选参数，可读写属性，左上角横坐标，默认 0
-		y = 231,          -- 可选参数，可读写属性，左上角纵坐标，默认 0
-		orientation = 0,  -- 可选参数，可读写属性，参考坐标系方向，0 - 竖屏 Home 在下，1 - 横屏 Home 在右，2 - 横屏 Home 在左，3 - 竖屏 Home 在上，默认为 screen.init 初始化的那个方向
-		secure = false,   -- 可选参数，只读属性，为 true 则截屏录屏取色会忽略这个视图，默认为 false
+		image = img,          -- 可读写属性，图像内容
+		width = 143,          -- 可读写属性，方框宽度
+		height = 143,         -- 可读写属性，方框高度
+		x = 45,               -- 可选参数，可读写属性，左上角横坐标，默认 0
+		y = 231,              -- 可选参数，可读写属性，左上角纵坐标，默认 0
+		background_color = 0, -- 可选参数，可读写属性，背景颜色，默认 0（透明），需要注意的是 0xFF000000 表示黑色，0 - 透明，0xFF000000 - 黑色，其他值表示 ARGB 颜色值，例如 0x80FF0000 表示半透明红色
+		orientation = 0,      -- 可选参数，可读写属性，参考坐标系方向，0 - 竖屏 Home 在下，1 - 横屏 Home 在右，2 - 横屏 Home 在左，3 - 竖屏 Home 在上，默认为 screen.init 初始化的那个方向
+		secure = false,       -- 可选参数，只读属性，为 true 则截屏录屏取色会忽略这个视图，默认为 false
 	}
 
 	-- 属性读写
@@ -102,9 +121,9 @@
 	end)
 --]]
 
-if type(lua_closure_dump) ~= 'function' or type(sb_ping) ~= 'function' then
+if type(sys.task) ~= 'function' then
 	error('static_view 模块需要更新版本的 XXT')
-	return nil, 'static_view 模块需要更新版本的 XXT'
+	return {}, 'static_view 模块需要更新版本的 XXT'
 end
 
 local argchecker = require("argchecker")
@@ -166,6 +185,10 @@ local shared_defined = lua_closure_dump(function()
 
 	XXTColor2UIColor = XXTColor2UIColor or function(color)
 		return objc.UIColor.colorWithRed(((color & 0xFF0000) >> 16) / 255).green(((color & 0x00FF00) >> 8) / 255).blue((color & 0x0000FF) / 255).alpha(1)()
+	end
+
+	XXTColor2UIColorAlpha = XXTColor2UIColorAlpha or function(color)
+		return objc.UIColor.colorWithRed(((color & 0xFF0000) >> 16) / 255).green(((color & 0x00FF00) >> 8) / 255).blue((color & 0x0000FF) / 255).alpha(((color & 0xFF000000) >> 24) / 255)()
 	end
 
 	UIApp = UIApp or objc.UIApplication.sharedApplication()
@@ -249,8 +272,77 @@ local shared_defined = lua_closure_dump(function()
 	end
 end):to_hex('\\x')
 
+local ensure_static_view_toast_service, stop_static_view_toast_service, static_view_service_uuid
+
+local destroy_all_views_code = [[
+	dispatch_async('main', function()
+		if type(borderMap) == 'table' then
+			local k_list = {}
+			for k, v in pairs(borderMap) do
+				k_list[#k_list + 1] = k
+			end
+			for _, k in ipairs(k_list) do
+				local v = borderMap[k]
+				v.setHidden(true)()
+				v.removeFromSuperview()
+				borderMap[k] = nil
+			end
+		end
+		if type(textLabelMap) == 'table' then
+			local k_list = {}
+			for k, v in pairs(textLabelMap) do
+				k_list[#k_list + 1] = k
+			end
+			for _, k in ipairs(k_list) do
+				local v = textLabelMap[k]
+				v.setHidden(true)()
+				v.removeFromSuperview()
+				textLabelMap[k] = nil
+			end
+		end
+		if type(imageLabelMap) == 'table' then
+			local k_list = {}
+			for k, v in pairs(imageLabelMap) do
+				k_list[#k_list + 1] = k
+			end
+			for _, k in ipairs(k_list) do
+				local v = imageLabelMap[k]
+				v.setHidden(true)()
+				v.removeFromSuperview()
+				imageLabelMap[k] = nil
+			end
+		end
+	end)
+]]
+
 if sys.cfversion() < 1673.126 then -- iOS < 13.2
 	sys.toast('') sys.toast('', -1)
+	local last_sb_pid
+	local function sb_pid_refresh()
+		local tmp_pid = app.pid_for_bid('com.apple.springboard')
+		if last_sb_pid ~= tmp_pid then
+			last_sb_pid = tmp_pid
+			static_view_service_uuid = nil
+		end
+	end
+	function ensure_static_view_toast_service()
+		if not sb_ping() then
+			error('iOS 13.2 以下安全模式不能用这个', 3)
+		end
+		local wait_uuid = utils.gen_uuid()
+		app.eval({
+			bid = 'com.apple.springboard',
+			lua = string.format("proc_put(%q, 'ok')\n", wait_uuid),
+		})
+		local tm = sys.mtime()
+		while sys.mtime() - tm < 5000 and proc_put(wait_uuid, '') == '' do
+			sys.msleep(5)
+		end
+		sb_pid_refresh()
+		if not static_view_service_uuid then
+			static_view_service_uuid = utils.gen_uuid()
+		end
+	end
 	function toast_service_run_script(func, ...)
 		if not sb_ping() then
 			error('iOS 13.2 以下安全模式不能用这个', 3)
@@ -264,21 +356,83 @@ if sys.cfversion() < 1673.126 then -- iOS < 13.2
 		while sys.mtime() - tm < 5000 and proc_put(wait_uuid, '') == '' do
 			sys.msleep(5)
 		end
+		sb_pid_refresh()
+		if not static_view_service_uuid then
+			static_view_service_uuid = utils.gen_uuid()
+		end
+	end
+	function stop_static_view_toast_service()
+		if not sb_ping() then
+			error('iOS 13.2 以下安全模式不能用这个', 3)
+		end
+		local wait_uuid = utils.gen_uuid()
+		app.eval({
+			bid = 'com.apple.springboard',
+			lua = string.format("proc_put(%q, 'ok')\n", wait_uuid)..destroy_all_views_code,
+		})
+		local tm = sys.mtime()
+		while sys.mtime() - tm < 5000 and proc_put(wait_uuid, '') == '' do
+			sys.msleep(5)
+		end
+		static_view_service_uuid = nil
 	end
 else
-	local cpdistributed_messaging_center_send_message_and_receive_reply = cpdistributed_messaging_center_send_message_and_receive_reply or function(center_name, message_name, message)
-		local CPDMsgCenter = require("CPDMsgCenter")
-		local center = CPDMsgCenter(center_name)
-		return center.sendMessageAndReceiveReply(message_name, message)
+    local XXT_SYSTEM_PATH = XXT_SYSTEM_PATH
+	local cpdistributed_messaging_center_send_message_and_receive_reply = cpdistributed_messaging_center_send_message_and_receive_reply
+	local toast_service_task = nil
+	local toast_service_center_name = "xxtouch.toast-service-center"
+	function ensure_static_view_toast_service()
+		if toast_service_task then
+			if toast_service_task:is_running() then
+				return
+			end
+			toast_service_task:wait_until_exit()
+			toast_service_task = nil
+		end
+		static_view_service_uuid = utils.gen_uuid()
+		toast_service_center_name = "xxtouch.toast-service-center."..static_view_service_uuid
+        local fn = '/tmp/'..toast_service_center_name
+        proc_put(toast_service_center_name, '')
+        file.writes(fn, lua_closure_dump(function(toast_service_center_name)
+            dispatch_async('concurrent', function()
+				toast_service_start(toast_service_center_name)
+                proc_put(toast_service_center_name, 'ok')
+				CFRunLoopRunWithAutoreleasePool()
+			end)
+			return CFRunLoopRunWithAutoreleasePool()
+        end, toast_service_center_name))
+		toast_service_task = sys.task(XXT_SYSTEM_PATH..'/XXTUIService.app/XXTUIService', '--ignores-hit', '--file', fn)
+        toast_service_task:set_stdin('/dev/null')
+        toast_service_task:set_stdout('/dev/null')
+        toast_service_task:set_stderr('/dev/null')
+		toast_service_task:launch()
+		register_atexit('xxtouch.static_view_service_cleanup', function()
+			if toast_service_task then
+				toast_service_task:kill()
+				toast_service_task = nil
+			end
+            file.remove(fn)
+		end)
+		repeat
+			sys.msleep(30)
+		until proc_put(toast_service_center_name, '') ~= ''
+        file.remove(fn)
+	end
+	function stop_static_view_toast_service()
+		if toast_service_task then
+			toast_service_task:kill()
+			toast_service_task = nil
+			static_view_service_uuid = nil
+		end
 	end
 	function toast_service_run_script(func, ...)
-		return cpdistributed_messaging_center_send_message_and_receive_reply("xxtouch.toast-service-center", "eval-script", {
+        local a = toast_service_task
+		return cpdistributed_messaging_center_send_message_and_receive_reply(toast_service_center_name, "eval-script", {
 			script = string.format("load('%s')() local ok,err = pcall(load('%s')) if not ok then sys.log(err) end", shared_defined, lua_closure_dump(func, ...):to_hex('\\x')),
 		})
 	end
 end
 
-local cpdistributed_messaging_center_send_message = cpdistributed_messaging_center_send_message
 local toast_service_run_script = toast_service_run_script
 
 local function rect_rotate90(x, y, width, height, orientation)
@@ -307,16 +461,21 @@ function new_rectangle_border(...)
 	local y = opt_value_ex('new_rectangle_border', 1, '(.y)', 'number', 0, tab.y)
 	local size = opt_value_ex('new_rectangle_border', 1, '(.size)', 'number', 2, tab.size)
 	local color = opt_value_ex('new_rectangle_border', 1, '(.color)', 'number', 0xFFFFFF, tab.color)
+    local background_color = opt_value_ex('new_rectangle_border', 1, '(.background_color)', 'number', 0, tab.background_color)
 	local duration = opt_value_ex('new_rectangle_border', 1, '(.duration)', 'number', 0, tab.duration)
 	local secure = opt_value_ex('new_rectangle_border', 1, '(.secure)', 'boolean', false, tab.secure)
 	local orientation = opt_value_ex('new_rectangle_border', 1, '(.orientation)', 'integer', screen.current_init_orien(), tab.orientation)
+
+	ensure_static_view_toast_service()
 
 	local has_been_destroyed = false
 
 	local props = {
 		uuid = utils.gen_uuid(),
+		service_uuid = static_view_service_uuid,
 		size = size,
-		color = color,
+		color = color or 0xFFFFFF,
+        background_color = background_color or 0x000000,
 		x = x,
 		y = y,
 		width = width,
@@ -330,6 +489,11 @@ function new_rectangle_border(...)
 
 	local refresh_the_rectangle_border = function(self, ...)
 		local duration = opt_value_ex(':refresh', 1, '(duration)', 'number', 0, ...)
+		ensure_static_view_toast_service()
+		if has_been_destroyed then
+			has_been_destroyed = false
+			props.service_uuid = static_view_service_uuid
+		end
 		toast_service_run_script(function(props, duration)
 			borderMap = borderMap or {}
 			local objc = require('objc')
@@ -357,8 +521,16 @@ function new_rectangle_border(...)
 				border.setHidden(false)()
 				objc.UIView.animateWithDuration(duration).animations(oneTimeBlock(function()
 					border.setFrame(frame)()
-					border.setBackgroundColor(objc.UIColor.clearColor())()
-					border.layer().borderColor = XXTColor2UIColor(props.color).CGColor()
+					if props.background_color == 0 then
+						border.backgroundColor = objc.UIColor.clearColor()
+					else
+						border.backgroundColor = XXTColor2UIColorAlpha(props.background_color)
+					end
+                    if props.color > 0xFFFFFF then
+						border.layer().borderColor = XXTColor2UIColorAlpha(props.color).CGColor()
+					else
+						border.layer().borderColor = XXTColor2UIColor(props.color).CGColor()
+					end
 					border.layer().borderWidth = props.size
 				end))()
 			end)
@@ -368,6 +540,10 @@ function new_rectangle_border(...)
 	local eval = function(self, ...)
 		local actions = check_value_ex(':eval', 1, '(actions)', 'function', ...)
 		if not has_been_destroyed then
+			if props.service_uuid ~= static_view_service_uuid then
+				has_been_destroyed = true
+				return
+			end
 			toast_service_run_script(function(actions, props, ...)
 				borderMap = borderMap or {}
 				local border = borderMap[props.uuid]
@@ -385,6 +561,10 @@ function new_rectangle_border(...)
 
 	local destroy_func = function()
 		if not has_been_destroyed then
+			if props.service_uuid ~= static_view_service_uuid then
+				has_been_destroyed = true
+				return
+			end
 			has_been_destroyed = true
 			toast_service_run_script(function(props)
 				borderMap = borderMap or {}
@@ -402,6 +582,7 @@ function new_rectangle_border(...)
 	local setter_type = {
 		size = 'number',
 		color = 'number',
+        background_color = 'number',
 		x = 'number',
 		y = 'number',
 		width = 'number',
@@ -445,18 +626,23 @@ function new_text_label(...)
 	local font_name = opt_value_ex('new_text_label', 1, '(.font_name)', 'string', 'Helvetica', tab.font_name)
 	local font_size = opt_value_ex('new_text_label', 1, '(.font_size)', 'number', 12, tab.font_size)
 	local text_color = opt_value_ex('new_text_label', 1, '(.text_color)', 'number', 0xFFFFFF, tab.text_color)
+    local background_color = opt_value_ex('new_text_label', 1, '(.background_color)', 'number', 0, tab.background_color)
 	local duration = opt_value_ex('new_text_label', 1, '(.duration)', 'number', 0, tab.duration)
 	local secure = opt_value_ex('new_text_label', 1, '(.secure)', 'boolean', false, tab.secure)
 	local orientation = opt_value_ex('new_text_label', 1, '(.orientation)', 'integer', screen.current_init_orien(), tab.orientation)
+
+	ensure_static_view_toast_service()
 
 	local has_been_destroyed = false
 
 	local props = {
 		uuid = utils.gen_uuid(),
+		service_uuid = static_view_service_uuid,
 		text = text,
 		font_size = font_size,
 		font_name = font_name,
 		text_color = text_color or 0xFFFFFF,
+        background_color = background_color or 0x000000,
 		x = x,
 		y = y,
 		secure = secure,
@@ -492,6 +678,11 @@ function new_text_label(...)
 
 	local refresh_the_text_label = function(self, ...)
 		local duration = opt_value_ex(':refresh', 1, '(duration)', 'number', 0, ...)
+		ensure_static_view_toast_service()
+		if has_been_destroyed then
+			has_been_destroyed = false
+			props.service_uuid = static_view_service_uuid
+		end
 		toast_service_run_script(function(props, duration)
 			textLabelMap = textLabelMap or {}
 			local objc = require('objc')
@@ -527,9 +718,17 @@ function new_text_label(...)
 						textLabel.transform = CGAffineTransformMakeRotation(180 * (math.pi / 180.0))
 					end
 					textLabel.setFrame(frame)()
-					textLabel.backgroundColor = objc.UIColor.clearColor()
+                    if props.background_color == 0 then
+                        textLabel.backgroundColor = objc.UIColor.clearColor()
+                    else
+                        textLabel.backgroundColor = XXTColor2UIColorAlpha(props.background_color)
+                    end
 					textLabel.font = font
-					textLabel.textColor = XXTColor2UIColor(props.text_color)
+                    if props.text_color > 0xFFFFFF then
+                        textLabel.textColor = XXTColor2UIColorAlpha(props.text_color)
+                    else
+                        textLabel.textColor = XXTColor2UIColor(props.text_color)
+                    end
 					textLabel.lineBreakMode = 0 -- NSLineBreakByWordWrapping
 					textLabel.textAlignment = 0 -- NSTextAlignmentLeft
 					textLabel.text = props.text
@@ -541,6 +740,10 @@ function new_text_label(...)
 	local eval = function(self, ...)
 		local actions = check_value_ex(':eval', 1, '(actions)', 'function', ...)
 		if not has_been_destroyed then
+			if props.service_uuid ~= static_view_service_uuid then
+				has_been_destroyed = true
+				return
+			end
 			toast_service_run_script(function(actions, props, ...)
 				textLabelMap = textLabelMap or {}
 				local textLabel = textLabelMap[props.uuid]
@@ -559,6 +762,10 @@ function new_text_label(...)
 
 	local destroy_func = function()
 		if not has_been_destroyed then
+			if props.service_uuid ~= static_view_service_uuid then
+				has_been_destroyed = true
+				return
+			end
 			has_been_destroyed = true
 			toast_service_run_script(function(props)
 				textLabelMap = textLabelMap or {}
@@ -578,6 +785,7 @@ function new_text_label(...)
 		font_name = 'string',
 		font_size = 'number',
 		text_color = 'number',
+        background_color = 'number',
 		x = 'number',
 		y = 'number',
 		orientation = 'number',
@@ -634,17 +842,22 @@ function new_image_label(...)
 	local height = check_value_ex('new_image_label', 1, '(.height)', 'number', tab.height)
 	local x = opt_value_ex('new_image_label', 1, '(.x)', 'number', 0, tab.x)
 	local y = opt_value_ex('new_image_label', 1, '(.y)', 'number', 0, tab.y)
+    local background_color = opt_value_ex('new_image_label', 1, '(.background_color)', 'number', 0, tab.background_color)
 	local duration = opt_value_ex('new_image_label', 1, '(.duration)', 'number', 0, tab.duration)
 	local secure = opt_value_ex('new_image_label', 1, '(.secure)', 'boolean', false, tab.secure)
 	local orientation = opt_value_ex('new_image_label', 1, '(.orientation)', 'integer', screen.current_init_orien(), tab.orientation)
+
+	ensure_static_view_toast_service()
 
 	local the_image = img:copy()
 
 	local props = {
 		uuid = utils.gen_uuid(),
+		service_uuid = static_view_service_uuid,
 		image_data = the_image:png_data(),
 		x = x,
 		y = y,
+        background_color = background_color or 0x000000,
 		width = width,
 		height = height,
 		secure = secure,
@@ -656,6 +869,11 @@ function new_image_label(...)
 
 	local refresh_the_image_label = function(self, ...)
 		local duration = opt_value_ex(':refresh', 1, '(duration)', 'number', 0, ...)
+		ensure_static_view_toast_service()
+		if has_been_destroyed then
+			has_been_destroyed = false
+			props.service_uuid = static_view_service_uuid
+		end
 		toast_service_run_script(function(props, duration)
 			imageLabelMap = imageLabelMap or {}
 			local objc = require('objc')
@@ -694,7 +912,11 @@ function new_image_label(...)
 					end
 					imageLabel.setContentMode(2)() -- UIViewContentModeScaleAspectFill
 					imageLabel.setFrame(frame)()
-					imageLabel.backgroundColor = objc.UIColor.clearColor()
+					if props.background_color == 0 then
+						imageLabel.backgroundColor = objc.UIColor.clearColor()
+                    else
+                        imageLabel.backgroundColor = XXTColor2UIColorAlpha(props.background_color)
+                    end
 				end))()
 			end)
 		end, props, duration)
@@ -703,6 +925,10 @@ function new_image_label(...)
 	local eval = function(self, ...)
 		local actions = check_value_ex(':eval', 1, '(actions)', 'function', ...)
 		if not has_been_destroyed then
+			if props.service_uuid ~= static_view_service_uuid then
+				has_been_destroyed = true
+				return
+			end
 			toast_service_run_script(function(actions, props, ...)
 				imageLabelMap = imageLabelMap or {}
 				local imageLabel = imageLabelMap[props.uuid]
@@ -722,6 +948,10 @@ function new_image_label(...)
 
 	local destroy_func = function()
 		if not has_been_destroyed then
+			if props.service_uuid ~= static_view_service_uuid then
+				has_been_destroyed = true
+				return
+			end
 			has_been_destroyed = true
 			toast_service_run_script(function(props)
 				imageLabelMap = imageLabelMap or {}
@@ -741,6 +971,7 @@ function new_image_label(...)
 		y = 'number',
 		width = 'number',
 		height = 'number',
+        background_color = 'number',
 		orientation = 'number',
 	}
 
@@ -785,131 +1016,29 @@ function new_image_label(...)
 	})
 end
 
-function kill_toast_service()
-	if sys.cfversion() >= 1673.126 then
-		cpdistributed_messaging_center_send_message("xxtouch.toast-service-center", "eval-script", {script = "os.exit(0)"})
+local function kill_toast_service()
+	if type(stop_static_view_toast_service) == 'function' then
+		stop_static_view_toast_service()
 	end
 end
 
-function edges_to_rect(left, top, right, bottom)
+local function edges_to_rect(left, top, right, bottom)
 	return {x = left, y = top, width = right - left, height = bottom - top}
 end
 
-function rect_to_edges(rect)
+local function rect_to_edges(rect)
 	return rect.x, rect.y, rect.x + rect.width, rect.y + rect.height
 end
 
--- 以上是封装
-if true then
-	return {
-		new_text_label = new_text_label,
-		new_image_label = new_image_label,
-		new_rectangle_border = new_rectangle_border,
-		edges_to_rect = edges_to_rect,
-		rect_to_edges = rect_to_edges,
-		kill_toast_service = kill_toast_service,
-		_VERSION = "0.2.2",
-		_AUTHOR = "havonz",
-	}
-end
--- 以下是使用示例
-
-img = screen.image(rect_to_edges{
-	x = 45,
-	y = 231,
-	width = 143,
-	height = 143,
-})
-
-img:binaryzation()
-img:replace_color(0xFF000000, 0x00000000, 100)
-
-red_border1 = new_rectangle_border{
-	size = 2,
-	color = #color(255, 0, 0),
-	x = 45,
-	y = 231,
-	width = 143,
-	height = 143,
+return {
+	new_text_label = new_text_label,
+	new_image_label = new_image_label,
+	new_rectangle_border = new_rectangle_border,
+	edges_to_rect = edges_to_rect,
+	rect_to_edges = rect_to_edges,
+	kill_toast_service = kill_toast_service,
+	init = ensure_static_view_toast_service,
+	remove_all_views = kill_toast_service,
+	_VERSION = "0.2.3",
+	_AUTHOR = "havonz",
 }
-
-img_label = new_image_label{
-	image = img,
-	x = 45,
-	y = 231,
-	width = 143,
-	height = 143,
-}
-img_label.x = img_label.x + 100
-img_label.y = img_label.y + 100
-img_label:refresh(0.5)
-
-red_border2 = new_rectangle_border{
-	size = 2,
-	color = #color(255, 0, 0),
-	x = 45 + 100,
-	y = 231 + 100,
-	width = 143,
-	height = 143,
-	duration = 0.5,
-}
-
-sys.msleep(1000)
-
-txt_label = new_text_label{
-	x = 300,
-	y = 300,
-	text = '你好世界',
-	text_color = #color(255, 0, 0),
-	font_name = 'Helvetica',
-	font_size = 30,
-	secure = true, -- 截屏录屏取色看不到
-}
-
-sys.msleep(300)
-
-txt_label:eval(function(textLabel)
-	require('objc').UIView.animateWithDuration(0.3).animations(oneTimeBlock(function()
-		textLabel.transform = CGAffineTransformRotate(textLabel.transform(), 45 * (math.pi / 180.0))
-	end))()
-end)
-
-sys.msleep(300)
-
-txt_label:eval(function(textLabel)
-	require('objc').UIView.animateWithDuration(0.3).animations(oneTimeBlock(function()
-		textLabel.transform = CGAffineTransformRotate(textLabel.transform(), -20 * (math.pi / 180.0))
-	end))()
-end)
-
-sys.msleep(1000)
-
-local w, h = screen.size()
-
--- 更改文字 颜色 位置居中
-txt_label.text = '不好了世界'
-txt_label.x = (w - txt_label.width) // 2
-txt_label.y = (h - txt_label.height) // 2
-txt_label.text_color = #color(0, 255, 0) -- 绿字
-txt_label:refresh(0.5) -- 将新数据更新到界面，动画时间 0.5 秒
-
-sys.msleep(2000)
-
-blue_border = new_rectangle_border{
-	size = 3,
-	color = #color(0, 0, 255),
-	x = 393,
-	y = 757,
-	width = 143,
-	height = 143,
-}
-
-sys.msleep(1000)
-blue_border:destroy() -- 销毁一个矩形边框
-
-sys.msleep(1000)
-
-os.exit()
-
--- 脚本结束，即使没有使用 :destroy() 矩形边框也会触发 __gc 自动销毁
---l2:destroy()
