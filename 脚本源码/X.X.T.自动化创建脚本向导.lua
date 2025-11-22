@@ -604,9 +604,11 @@ function ms_add_ui_action(action)
 	end
 end
 
+local XXT_HOME_PATH = XXT_HOME_PATH or '/var/mobile/Media/1ferver'
+
 function ms_make(filename)
 	if not package.preload["XXTDo"] then
-		package.preload["XXTDo"] = loadfile('/var/mobile/Media/1ferver/lua/XXTDo.lua')
+		package.preload["XXTDo"] = loadfile(XXT_HOME_PATH..'/lua/XXTDo.lua')
 	end
 	local xxtdobytes = string.dump(package.preload["XXTDo"])
 	local script_flow = {}
@@ -911,10 +913,10 @@ end
 
 function get_tile_pos(info)
 	info.id = tonumber(info.id) or 1
-	info.size = tonumber(info.size) or 15 * factor
+	info.size = (tonumber(info.size) or 30) * (factor / 2)
 	info.x = tonumber(info.x) or (scr_w / 2)
 	info.y = tonumber(info.y) or (scr_h / 2)
-    local frame = webview.frame(info.id)
+    local frame = webview.frame(info.id) or {x = 0, y = 0, width = 0, height = 0}
     local x, y = (frame.x * factor + (frame.width / 2) * factor), (frame.y * factor + (frame.height/ 2) * factor)
 	return {x = math.floor(x), y = math.floor(y)}
 end
@@ -1001,7 +1003,7 @@ function choose_app(eventtitle, actionlabel)
 	local appnamemap = {}
 	local needshowbid = false
 	for i,bid in ipairs(bids) do
-		local name = app.localized_name(bid)
+		local name = app.localized_name(bid) or bid
 		appnames[i] = name
 		if not appnamemap[name] then
 			appnamemap[name] = bid
@@ -1042,7 +1044,7 @@ function choose_apps(eventtitle, actionlabel)
 	local appnamemap = {}
 	local needshowbid = false
 	for i,bid in ipairs(bids) do
-		local name = app.localized_name(bid)
+		local name = app.localized_name(bid) or bid
 		appnames[i] = name
 		if not appnamemap[name] then
 			appnamemap[name] = bid
@@ -1092,7 +1094,7 @@ function choose_action_for_event(eventtitle)
 	end
 	dlg:add_label(eventtitle)
 	dlg:add_range('延迟几毫秒', {0, 10000, 10}, 0)
-	
+
 	local actionname_tap = str_fill_wide('点击位置', math.floor((scr_w - 75 * factor) / (5.1724 * factor))) -- 600 / 58
 	local actionname_find_tap = str_fill_wide('找到并点击位置', math.floor((scr_w - 75 * factor) / (5.4545 * factor))) -- 600 / 55
 	local actionname_slide = str_fill_wide('触摸滑动到', math.floor((scr_w - 75 * factor) / (5.2631 * factor))) -- 600 / 57
