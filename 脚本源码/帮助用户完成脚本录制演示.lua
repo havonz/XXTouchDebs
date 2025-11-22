@@ -1,10 +1,10 @@
 local scr_w, scr_h = screen.size()
 
-local factor = screen.scale_factor() -- 设备分辨率缩放，通常都是 2x 的了，plus 系列似乎是 3x
+local scale = screen.scale_factor() / 2
 
 webview.show{
 	html = [[
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 	<html>
 	<head>
 	<style>
@@ -42,10 +42,10 @@ webview.show{
 	</body>
 	</html>
 	]],
-	x = (scr_w - 570) / 2,
-	y = scr_h - 280,
-	width = 580,
-	height = 100,
+	x = (scr_w - 570 * scale) / 2,
+	y = scr_h - 280 * scale,
+	width = 580 * scale,
+	height = 100 * scale,
 	corner_radius = 10,
 	alpha = 0.7,
 	animation_duration = 0.3,
@@ -57,14 +57,14 @@ webview.show{
 
 function show_tile(tileid)
     local x = scr_w / 2   -- 居中横坐标
-    local y = scr_h - 380 -- 屏幕底部向上偏移 380 像素的纵坐标
+    local y = scr_h - 380 * scale -- 屏幕底部向上偏移 380 像素的纵坐标
     webview.show{
-        html = [[<meta name="viewport" content="width=device-width, initial-scale=1.0">]],
-        x = x - 25 * factor;
-        y = y - 25 * factor;
-        width = 50 * factor;
-        height = 50 * factor;
-        corner_radius = 12 * factor;
+        html = [[<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">]],
+        x = x - 50 * scale;
+        y = y - 50 * scale;
+        width = 100 * scale;
+        height = 100 * scale;
+        corner_radius = 25;
         alpha = 0.7;
         animation_duration = 0;
         can_drag = true;
@@ -82,7 +82,7 @@ local eid = thread.register_event( -- 注册监听字典状态有值事件
     function(val)
         if val == '捕捉完毕' then
             local frame = webview.frame(3) -- 获取小块 frame 信息
-            local x, y = (frame.x * factor + 25 * factor), (frame.y * factor + 25 * factor) -- 通过 frame 信息换算出小块位置
+            local x, y = (frame.x * (scale * 2) + 50 * scale), (frame.y * (scale * 2) + 50 * scale) -- 通过 frame 信息换算出小块位置
             webview.destroy(3) -- 销毁 编号为 3 的小块
             webview.destroy(2) -- 销毁 将小块移动到“签到”按钮上然后点这里 按钮
             sys.toast("测试点击捕捉到的位置\n"..x..", "..y)
