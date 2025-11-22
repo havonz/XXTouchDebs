@@ -1,8 +1,9 @@
 
-local 屏幕纵向中间位置 = ({screen.size()})[2]/2
+local 尺寸缩放 = screen.scale_factor() / 2
+local 屏幕纵向中间位置 = ({screen.size()})[2] / 2
 
 webview.show{
-	html = [[<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	html = [[<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 	<html>
 		<script src="/js/jquery.min.js"></script>
 		<script src="/js/jquery.json.min.js"></script>
@@ -60,8 +61,8 @@ webview.show{
 	</html>
 	]],
 	y = 屏幕纵向中间位置,
-	width = 120,
-	height = 124 * 4,
+	width = 120 * 尺寸缩放,
+	height = 124 * 4 * 尺寸缩放,
 	alpha = 1,
 	animation_duration = 0,
 	corner_radius = 25,
