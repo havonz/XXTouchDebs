@@ -967,7 +967,7 @@ function pick_pos_list(info)
 			pos_list[#pos_list + 1] = get_tile_pos{id = i}
 		end
 	end})
-	confirm_button({y = 30 * factor, id = info.id + 1, title = ' 取消拾取 ', callback = function()
+	confirm_button({y = 80 * factor, id = info.id + 1, title = ' 取消拾取 ', callback = function()
 		confirm_button{id = info.id, hide = true}
 		pos_list = {}
 	end})
