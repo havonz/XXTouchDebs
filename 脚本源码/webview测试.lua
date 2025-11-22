@@ -120,13 +120,7 @@ local html = [=[
 ]=]
 --
 local w, h = screen.size()
---
-local factor = 1 -- 默认高度为 2x 设备所设
-if w == 1242 or w == 1080 then
-    factor = 1.5 -- iPhone 6(S)+ 的分辨率是 3x 的
-elseif w == 320 or w == 768 then
-    factor = 0.5 -- 3Gs 以前的 iPhone 的分辨率是 1x 的
-end
+local factor = screen.scale_factor() / 2
 --
 webview.show{ -- 重置 webview 位置到左上角
     x = 0,
