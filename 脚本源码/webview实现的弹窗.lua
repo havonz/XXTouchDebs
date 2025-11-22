@@ -168,7 +168,7 @@ function alert(message,timeout,title,cancelbutton,button)
 		y = -hhh,
 		width = 600 * scale,
 		height = webview_height,
-		corner_radius = 2 * scale,
+		corner_radius = 3,
 		alpha = 0,
 		animation_duration = 0,
 		level = 1995.2
@@ -191,7 +191,7 @@ function alert(message,timeout,title,cancelbutton,button)
 		y = hhh,
 		width = 600 * scale,
 		height = webview_height,
-		corner_radius = 2 * scale,
+		corner_radius = 3,
 		alpha = 1,
 		animation_duration = 0.2,
 		rotate = rotate_ang,

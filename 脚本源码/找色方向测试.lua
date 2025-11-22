@@ -15,7 +15,7 @@
 webview.show{
 	html = [[
 	<!DOCTYPE html>
-	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 	<html>
 	<head>
 		<meta charset="UTF-8">
@@ -67,6 +67,8 @@ webview.show{
 sys.toast('该脚本用于演示不同的找色顺序会先找到哪个点')
 sys.msleep(1500)
 
+local scale = screen.scale_factor() / 2
+
 local function showp(id, x, y)
 	local current_init_orien = screen.current_init_orien()
 	if current_init_orien<=0 then
@@ -82,12 +84,12 @@ local function showp(id, x, y)
 		x, y = w-x, h-y
 	end
 	webview.show{
-		html = [[<!DOCTYPE html><html><head></head><body bgcolor="red"></body></html>]];
+		html = [[<!DOCTYPE html><html><head><meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"></head><body bgcolor="red"></body></html>]];
 		level = 2001;
-		x = x - 20;
-		y = y - 20;
-		width = 40;
-		height = 40;
+		x = x - 20 * scale;
+		y = y - 20 * scale;
+		width = 40 * scale;
+		height = 40 * scale;
 		corner_radius = 10;
 		id = id;
 	}
@@ -97,14 +99,25 @@ local function hidep(id)
 	webview.hide(id)
 end
 
+local 找色顺序编码 = {
+	[1] = "上下左右",
+	[2] = "左右上下",
+	[3] = "右左上下",
+	[4] = "上下右左",
+	[5] = "下上右左",
+	[6] = "右左下上",
+	[7] = "左右下上",
+	[8] = "下上左右",
+}
+
 for o = 0, 3 do
 	screen.init(o)
-	sys.toast('screen.init('..o..')')
+	sys.toast('screen.init('..o..')\n找到第一个黑色坐标')
 	sys.msleep(1000)
 	sys.toast('', -1)
 	local img = screen.image()
 	for i = 1, 8 do
-		sys.toast(i)
+		sys.toast(i..' : '..找色顺序编码[i])
 		local x, y = img:find_color({
 			find_order = i;
 			{0, 0, 0x000000};
@@ -120,5 +133,4 @@ webview.hide(1)
 screen.init(0)
 sys.toast('演示完毕')
 sys.msleep(1000)
-
 

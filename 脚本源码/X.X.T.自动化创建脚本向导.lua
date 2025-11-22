@@ -643,7 +643,7 @@ function show_tile(info)
 	info.size = tonumber(info.size) or 15 * factor
 	info.x = tonumber(info.x) or (scr_w / 2)
 	info.y = tonumber(info.y) or (scr_h / 2)
-	info.corner_radius = tonumber(info.corner_radius) or (info.size * (0.48 / factor))
+	info.corner_radius = tonumber(info.corner_radius) or (info.size / factor * 0.48)
 	info.title = info.title or info.id
     webview.show{
         html = [[<meta name="viewport" content="width=device-width, initial-scale=1.0"><html><head></head>
@@ -671,7 +671,7 @@ function show_tile(info)
         y = info.y - ((info.size/2) * factor);
         width = info.size * factor;
         height = info.size * factor;
-        corner_radius = info.corner_radius * factor;
+        corner_radius = info.corner_radius;
         alpha = 0.9;
         animation_duration = 0;
         can_drag = true;
