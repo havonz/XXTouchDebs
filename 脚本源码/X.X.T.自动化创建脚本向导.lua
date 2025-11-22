@@ -605,6 +605,7 @@ function ms_add_ui_action(action)
 end
 
 local XXT_HOME_PATH = XXT_HOME_PATH or '/var/mobile/Media/1ferver'
+local XXT_SCRIPTS_PATH = XXT_SCRIPTS_PATH or XXT_HOME_PATH..'/lua/scripts'
 
 function ms_make(filename)
 	if not package.preload["XXTDo"] then
@@ -1294,7 +1295,7 @@ function on_new_trigger_button_click(msg)
 			local c, s = dlg:show()
 			if c then
 				if s["结束向导保存到文件？"] == "结束向导并导出脚本到文件" then
-					local fullfilename = string.format('/var/mobile/Media/1ferver/lua/scripts/%s', filename)
+					local fullfilename = string.format(XXT_SCRIPTS_PATH..'/%s', filename)
 					file.writes(fullfilename, outlua)
 					sys.alert(string.format('已经保存到\n%s', fullfilename))
 					os.exit()
