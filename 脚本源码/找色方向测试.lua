@@ -65,7 +65,7 @@ webview.show{
 }
 
 sys.toast('该脚本用于演示不同的找色顺序会先找到哪个点')
-sys.msleep(1500)
+sys.msleep(2500)
 
 local scale = screen.scale_factor() / 2
 
