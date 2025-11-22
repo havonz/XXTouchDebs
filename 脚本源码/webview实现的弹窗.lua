@@ -11,7 +11,7 @@ local function html_escape(value)
 		['>'] = '&gt;',
 		['"'] = '&quot;',
 		["'"] = '&apos;',
-		['\n'] = '&#10;',
+		['\n'] = '<br>',
 		[' '] = '&nbsp;',
 	}
 	value = string.gsub(value, '[ &<>"\'\n]',  function(c)
@@ -21,7 +21,10 @@ local function html_escape(value)
 end
 
 function alert(message,timeout,title,cancelbutton,button)
+	local scale = screen.scale_factor() / 2
 	local w, h = screen.size()
+	local alert_window_id = 121
+	local background_window_id = 122
 	local buttons = {}
 	local button_index = 0
 	if button then
@@ -57,7 +60,8 @@ function alert(message,timeout,title,cancelbutton,button)
 	if #(message:split('<br>')) > 6 then
 		webview_height = webview_height + ((#(message:split('<br>')) - 6) * 45)
 	end
-	if webview_height > h - 100 then webview_height = h - 100 end
+	webview_height = webview_height * scale
+	if webview_height > h - (100 * scale) then webview_height = h - (100 * scale) end
 	local html = [=[<!doctype html>
 <html>
 	<head>
@@ -147,7 +151,7 @@ function alert(message,timeout,title,cancelbutton,button)
 </html>]=]
 	local ret = ''
 	webview.show{
-		id = 2,
+		id = background_window_id,
 		x = 0,
 		y = 0,
 		width = w,
@@ -158,18 +162,19 @@ function alert(message,timeout,title,cancelbutton,button)
 	}
 	local hhh = (h - webview_height) / 2
 	webview.show{
-		id = 1,
+		id = alert_window_id,
 		html = html,
-		x = (w - 600) / 2,
+		x = (w - 600 * scale) / 2,
 		y = -hhh,
-		width = 600,
+		width = 600 * scale,
 		height = webview_height,
+		corner_radius = 2 * scale,
 		alpha = 0,
 		animation_duration = 0,
 		level = 1995.2
 	}
 	webview.show{
-		id = 2,
+		id = background_window_id,
 		x = 0,
 		y = 0,
 		width = w,
@@ -180,13 +185,13 @@ function alert(message,timeout,title,cancelbutton,button)
 		html = [[<html><body style="background:#000000"></body></html>]]
 	}
 	webview.show{
-		id = 1,
+		id = alert_window_id,
 		html = html,
-		x = (w - 600) / 2,
+		x = (w - 600 * scale) / 2,
 		y = hhh,
-		width = 600,
+		width = 600 * scale,
 		height = webview_height,
-		corner_radius = 2,
+		corner_radius = 2 * scale,
 		alpha = 1,
 		animation_duration = 0.2,
 		rotate = rotate_ang,
@@ -196,19 +201,19 @@ function alert(message,timeout,title,cancelbutton,button)
 	proc_queue_clear("alert-webview")
 	while(ret=='')do
 		ret = proc_queue_pop("alert-webview")
-		sys.msleep(1)
+		sys.msleep(30)
 	end
 	webview.show{
-		id = 1,
-		x = (w - 600) / 2,
+		id = alert_window_id,
+		x = (w - 600 * scale) / 2,
 		y = h,
-		width = 600,
-		height = webview_height,
+		width = 600 * scale,
+		height = webview_height * scale,
 		alpha = 0,
 		animation_duration = 0.2,
 	}
 	webview.show{
-		id = 2,
+		id = background_window_id,
 		x = 0,
 		y = 0,
 		width = w,
@@ -217,8 +222,8 @@ function alert(message,timeout,title,cancelbutton,button)
 		animation_duration = 0.2
 	}
 	sys.msleep(200)
-	webview.destroy(1)
-	webview.destroy(2)
+	webview.hide(alert_window_id)
+	webview.hide(background_window_id)
 	return json.decode(ret).Data
 end
 
