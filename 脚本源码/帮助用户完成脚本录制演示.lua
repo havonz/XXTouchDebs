@@ -8,16 +8,68 @@ webview.show{
 	<html>
 	<head>
 	<style>
+	html, body {
+		margin: 0;
+		padding: 0;
+		width: 100%;
+		height: 100%;
+		overflow: hidden;
+	}
+	body {
+		display: flex;
+		align-items: center;
+		justify-content: center;
+	}
 	#one_button {
 		color: #FFFFFF;
-		text-shadow: 0px 0px 10px #000000;
+		background: linear-gradient(135deg, #3498db 0%, #2980b9 100%);
+		text-shadow: 0px 2px 4px rgba(0, 0, 0, 0.3);
+		font-family: character, -apple-system, BlinkMacSystemFont, sans-serif;
+		font-size: 16px;
+		font-weight: 500;
+		padding: 12px 24px;
+		border-radius: 8px;
+		box-shadow: 0 4px 15px rgba(52, 152, 219, 0.3);
+		cursor: pointer;
+		transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		white-space: nowrap;
+		position: relative;
+		overflow: hidden;
+		width: 100%;
+		height: 100%;
+		box-sizing: border-box;
+	}
+	.ripple {
+		position: absolute;
+		border-radius: 50%;
+		background: rgba(255, 255, 255, 0.6);
+		width: 0;
+		height: 0;
+		top: 50%;
+		left: 50%;
+		transform: translate(-50%, -50%);
+		animation: ripple-animation 0.6s ease-out;
+	}
+	@keyframes ripple-animation {
+		to {
+			width: 200%;
+			height: 200%;
+			opacity: 0;
+		}
+	}
+	#one_button:active {
+		transform: scale(0.95);
+		box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
 	}
 	div { /* 禁止选中文字 */
-		-moz-user-select:none;
-		-webkit-user-select:none;
-		-ms-user-select:none;
-		-khtml-user-select:none;
-		user-select:none;
+		-moz-user-select: none;
+		-webkit-user-select: none;
+		-ms-user-select: none;
+		-khtml-user-select: none;
+		user-select: none;
 	}
 	</style>
     <script src="/js/jquery.min.js"></script>
@@ -25,6 +77,25 @@ webview.show{
 	<script type="text/javascript">
 	$(document).ready(function(){
 		$("#one_button").click(function(){
+			var btn = $(this);
+			// 添加点击动画效果
+			btn.css({
+				'transform': 'scale(0.95)',
+				'box-shadow': '0 2px 8px rgba(0, 0, 0, 0.2)'
+			});
+			
+			// 添加波纹效果
+			var ripple = $('<span class="ripple"></span>');
+			btn.append(ripple);
+			
+			setTimeout(function() {
+				btn.css({
+					'transform': 'scale(1)',
+					'box-shadow': '0 4px 15px rgba(0, 0, 0, 0.2)'
+				});
+				ripple.remove();
+			}, 300);
+			
 			$.post(
                 "/proc_queue_push", // 将点击事件消息发送到进程词典
                 $.toJSON({
@@ -59,13 +130,45 @@ function show_tile(tileid)
     local x = scr_w / 2   -- 居中横坐标
     local y = scr_h - 380 * scale -- 屏幕底部向上偏移 380 像素的纵坐标
     webview.show{
-        html = [[<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">]],
+        html = [[<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"><html><head></head>
+		<style>
+		html, body {
+			margin: 0;
+			padding: 0;
+			width: 100%;
+			height: 100%;
+			overflow: hidden;
+		}
+		#one_tile {
+			color: #FFFFFF;
+			background: linear-gradient(135deg, #3498db 0%, #2980b9 100%);
+			text-shadow: 0px 2px 4px rgba(0, 0, 0, 0.3);
+			font-size: 70vmin;
+			text-align: center;
+			font-family: character, -apple-system, BlinkMacSystemFont, sans-serif;
+			font-weight: 600;
+			width: 100%;
+			height: 100%;
+			display: flex;
+			align-items: center;
+			justify-content: center;
+			box-shadow: 0 4px 15px rgba(52, 152, 219, 0.4);
+		}
+		div { /* 禁止选中文字 */
+			-moz-user-select:none;
+			-webkit-user-select:none;
+			-ms-user-select:none;
+			-khtml-user-select:none;
+			user-select:none;
+		}
+		</style>
+		<body><div id="one_tile">]]..tileid..[[</div><body></html>]],
         x = x - 50 * scale;
         y = y - 50 * scale;
         width = 100 * scale;
         height = 100 * scale;
         corner_radius = 25;
-        alpha = 0.7;
+        alpha = 0.9;
         animation_duration = 0;
         can_drag = true;
         level = 2060;
@@ -76,7 +179,7 @@ end
 
 show_tile(3) -- 显示可以拖拽的小块，webview 编号为 3，可以使用 webview.destroy(3) 销毁它
 
-proc_queue_clear("来自webview的消息", "") -- 清空需要监听的字典的值
+proc_queue_clear("来自webview的消息") -- 清空需要监听的字典的值
 local eid = thread.register_event( -- 注册监听字典状态有值事件
     "来自webview的消息",
     function(val)
