@@ -9,6 +9,7 @@
     可配合 XXTColorPicker 1.0.28 以上集成的 XXT-Bin-Dict 自定义格式开发
 
     更新日志：
+    0.2.5 2025-11-29 添加大漠文字识别和找字接口
     0.2.4 2025-06-28 优化 screen_ocr、image_ocr 识别文字排序
     0.2.3 2025-06-27 修正区域找目标没找到也会返回一个正数坐标的问题
     0.2.2 2025-06-23 修正 touchelf_dict_init
@@ -36,10 +37,16 @@
 
     识别图片上所有的字典中有的词：
     local text, info = dict:image_ocr(image.load_file(XXT_SCRIPTS_PATH.."/1.png"), 百分制可信度)
+
+    大漠文字识别
+    local text, info = dict:screen_dm_ocr(百分制可信度, 左, 上, 右, 下)
+
+    大漠找字
+    x, y = dict:screen_dm_find("LINE", 百分制可信度, 左, 上, 右, 下)
 --]]
 
 if sys.xtversion():compare_version("1.3.8-20250501000000") < 0 then
-	error('XXTBinDict 模块仅支持 XXT 1.3.8-20250501 或以后的版本')
+    error('XXTBinDict 模块仅支持 XXT 1.3.8-20250501 或以后的版本')
 end
 
 local check_value = functor.argth.check_value
@@ -57,7 +64,7 @@ local function _xxt_dict_image_find(...) -- (self, img, name, opt, start_x, star
     local self = check_value(1, "table", ...)
     local img = select(2, ...)
     if not image.is(img) then
-        return error("bad argument #2 to dict_image_find (image_object expected, got "..type(img) .. ")")
+        return error("bad argument #2 to dict_image_find (image_object expected, got " .. type(img) .. ")")
     end
     local name = check_value(3, "string", ...)
     local opt = opt_value(4, "number.table", rawget(self, "dict_confidence_threshold"), ...)
@@ -66,10 +73,10 @@ local function _xxt_dict_image_find(...) -- (self, img, name, opt, start_x, star
     local name_dict = rawget(self, "name_dict")
     local info = name_dict[name]
     if not info then
-        return error("dict_image_find 没有字段 "..name)
+        return error("dict_image_find 没有字段 " .. name)
     end
     if type(opt) == 'number' then
-        opt = {downscale = rawget(self, "dict_donwscale"), confidence_threshold = opt}
+        opt = { downscale = rawget(self, "dict_donwscale"), confidence_threshold = opt }
     else
         opt.downscale = rawget(self, "dict_donwscale")
     end
@@ -79,7 +86,7 @@ local function _xxt_dict_image_find(...) -- (self, img, name, opt, start_x, star
     else
         bin_img = img:binaryzation(info[2])
     end
-    local found_rets = {bin_img:find_image(info[3], opt)}
+    local found_rets = { bin_img:find_image(info[3], opt) }
     if type(found_rets[1]) == 'number' then
         if found_rets[1] > 0 then
             found_rets[1] = found_rets[1] + start_x
@@ -98,9 +105,10 @@ local function _xxt_dict_image_detect(...) -- (self, img, opt, start_x, start_y)
     local self = check_value(1, "table", ...)
     local img = select(2, ...)
     if not image.is(img) then
-        return error("bad argument #2 to dict_image_detect (image_object expected, got "..type(img) .. ")")
+        return error("bad argument #2 to dict_image_detect (image_object expected, got " .. type(img) .. ")")
     end
-    local opt = opt_value(3, "number.table", {find_all = true, confidence_threshold = rawget(self, "dict_confidence_threshold")}, ...)
+    local opt = opt_value(3, "number.table",
+        { find_all = true, confidence_threshold = rawget(self, "dict_confidence_threshold") }, ...)
     local start_x = opt_value(4, "number", 0, ...)
     local start_y = opt_value(5, "number", 0, ...)
     local dict = rawget(self, "dict")
@@ -115,15 +123,30 @@ local function _xxt_dict_image_detect(...) -- (self, img, opt, start_x, start_y)
             end
         end
         local width, height = dict_v[3]:size()
-        local found_rets = {bin_img:find_image(dict_v[3], opt)}
+        local found_rets = { bin_img:find_image(dict_v[3], opt) }
         if type(found_rets[1]) == 'number' then
             if found_rets[1] > 0 then
-                local ret = {name = dict_v[1], width = width, height = height, x = found_rets[1] + start_x, y = found_rets[2] + start_y, confidence = opt}
+                local ret = {
+                    name = dict_v[1],
+                    width = width,
+                    height = height,
+                    x = found_rets[1] + start_x,
+                    y =
+                        found_rets[2] + start_y,
+                    confidence = opt
+                }
                 rets[#rets + 1] = ret
             end
         else
             for _, found_v in ipairs(found_rets[1]) do
-                local ret = {name = dict_v[1], width = width, height = height, x = found_v.x + start_x, y = found_v.y + start_y}
+                local ret = {
+                    name = dict_v[1],
+                    width = width,
+                    height = height,
+                    x = found_v.x + start_x,
+                    y = found_v.y +
+                        start_y
+                }
                 rets[#rets + 1] = ret
             end
         end
@@ -135,12 +158,14 @@ local function _xxt_dict_image_ocr(...) -- (self, img, confidence_threshold, sta
     local self = check_value(1, "table", ...)
     local img = select(2, ...)
     if not image.is(img) then
-        return error("bad argument #2 to dict_image_ocr (image_object expected, got "..type(img) .. ")")
+        return error("bad argument #2 to dict_image_ocr (image_object expected, got " .. type(img) .. ")")
     end
     local confidence_threshold = opt_value(3, "number", rawget(self, "dict_confidence_threshold"), ...)
     local start_x = opt_value(4, "number", 0, ...)
     local start_y = opt_value(5, "number", 0, ...)
-    local detected = _xxt_dict_image_detect(self, img, {confidence_threshold = confidence_threshold, find_all = true, downscale = rawget(self, "dict_donwscale")}, start_x, start_y)
+    local detected = _xxt_dict_image_detect(self, img,
+        { confidence_threshold = confidence_threshold, find_all = true, downscale = rawget(self, "dict_donwscale") },
+        start_x, start_y)
     local rets = {}
     for i, v in ipairs(detected) do
         rets[#rets + 1] = {
@@ -195,19 +220,25 @@ local function _xxt_dict_screen_find(...) -- self, name, opt, left, top, right, 
     local left = opt_value(4, "number", 0, ...)
     local top = opt_value(5, "number", 0, ...)
     local w, h = screen.size()
-    local right = opt_value(6, "number", w-1, ...)
-    local bottom = opt_value(7, "number", h-1, ...)
+    local right = opt_value(6, "number", w - 1, ...)
+    local bottom = opt_value(7, "number", h - 1, ...)
     return _xxt_dict_image_find(self, screen.image(left, top, right, bottom), name, opt, left, top)
 end
 
 local function _xxt_dict_screen_detect(...) -- (self, opt, left, top, right, bottom)
     local self = check_value(1, "table", ...)
-    local opt = opt_value(2, "number.table", {find_all = true, confidence_threshold = rawget(self, "dict_confidence_threshold"), downscale = rawget(self, "dict_donwscale")}, ...)
+    local opt = opt_value(2, "number.table",
+        {
+            find_all = true,
+            confidence_threshold = rawget(self, "dict_confidence_threshold"),
+            downscale = rawget(self,
+                "dict_donwscale")
+        }, ...)
     local left = opt_value(3, "number", 0, ...)
     local top = opt_value(4, "number", 0, ...)
     local w, h = screen.size()
-    local right = opt_value(5, "number", w-1, ...)
-    local bottom = opt_value(6, "number", h-1, ...)
+    local right = opt_value(5, "number", w - 1, ...)
+    local bottom = opt_value(6, "number", h - 1, ...)
     return _xxt_dict_image_detect(self, screen.image(left, top, right, bottom), opt, left, top)
 end
 
@@ -217,8 +248,8 @@ local function _xxt_dict_screen_ocr(...) -- (self, confidence_threshold, left, t
     local left = opt_value(3, "number", 0, ...)
     local top = opt_value(4, "number", 0, ...)
     local w, h = screen.size()
-    local right = opt_value(5, "number", w-1, ...)
-    local bottom = opt_value(6, "number", h-1, ...)
+    local right = opt_value(5, "number", w - 1, ...)
+    local bottom = opt_value(6, "number", h - 1, ...)
     return _xxt_dict_image_ocr(self, screen.image(left, top, right, bottom), confidence_threshold, left, top)
 end
 
@@ -229,7 +260,7 @@ local function _xxt_dict_set_donwscale(...) -- (self, downscale)
         downscale = 0.1
     elseif downscale > 1 then
         downscale = 1
-    elseif tostring(downscale) == tostring(0/0) then
+    elseif tostring(downscale) == tostring(0 / 0) then
         downscale = 1
     end
     rawset(self, "dict_donwscale", downscale)
@@ -242,7 +273,7 @@ local function _xxt_dict_set_confidence_threshold(...) -- (self, confidence_thre
         confidence_threshold = 1
     elseif confidence_threshold > 100 then
         confidence_threshold = 100
-    elseif tostring(confidence_threshold) == tostring(0/0) then
+    elseif tostring(confidence_threshold) == tostring(0 / 0) then
         confidence_threshold = 80
     end
     rawset(self, "dict_confidence_threshold", confidence_threshold)
@@ -250,90 +281,157 @@ end
 
 local _xxt_dict_meta = {
     __index = {
-        image_find = _xxt_dict_image_find;
-        image_detect = _xxt_dict_image_detect;
-        image_ocr = _xxt_dict_image_ocr;
-        screen_find = _xxt_dict_screen_find;
-        screen_detect = _xxt_dict_screen_detect;
-        screen_ocr = _xxt_dict_screen_ocr;
-        set_donwscale = _xxt_dict_set_donwscale;
-        set_confidence_threshold = _xxt_dict_set_confidence_threshold;
-    };
+        image_find = _xxt_dict_image_find,
+        image_detect = _xxt_dict_image_detect,
+        image_ocr = _xxt_dict_image_ocr,
+        screen_find = _xxt_dict_screen_find,
+        screen_detect = _xxt_dict_screen_detect,
+        screen_ocr = _xxt_dict_screen_ocr,
+        set_donwscale = _xxt_dict_set_donwscale,
+        set_confidence_threshold = _xxt_dict_set_confidence_threshold,
+    },
 }
 
+if type(image.load_matrix) == "function" then
+    _xxt_dict_meta.__index.screen_dm_find = function(...) -- self, name, sim, left, top, right, bottom
+        local self = check_value(1, "table", ...)
+        local name = check_value(2, "string", ...)
+        local sim = check_value(3, "number", ...)
+        local left = opt_value(4, "number", nil, ...)
+        local top = opt_value(5, "number", nil, ...)
+        local right = opt_value(6, "number", nil, ...)
+        local bottom = opt_value(7, "number", nil, ...)
+        local dict = rawget(self, "dict")
+        local name_dict = rawget(self, "name_dict")
+        local mdict = rawget(self, "mdict")
+        local first_v = dict[1] or {}
+        local name_v = name_dict[name] or first_v
+        local binopt = name_v[2] or {}
+        local bin_img = screen.image(left, top, right, bottom)
+        if type(binopt) == "string" and binopt == "auto" then
+            bin_img = bin_img:binaryzation()
+        else
+            bin_img = bin_img:binaryzation(binopt)
+        end
+        return bin_img:dm_find_str(mdict, name, sim)
+    end
+
+    _xxt_dict_meta.__index.screen_dm_ocr = function(...) -- self, sim, left, top, right, bottom
+        local self = check_value(1, "table", ...)
+        local sim = check_value(2, "number", ...)
+        local left = opt_value(3, "number", nil, ...)
+        local top = opt_value(4, "number", nil, ...)
+        local right = opt_value(5, "number", nil, ...)
+        local bottom = opt_value(6, "number", nil, ...)
+        local dict = rawget(self, "dict")
+        local mdict = rawget(self, "mdict")
+        local first_v = dict[1] or {}
+        local binopt = first_v[2] or {}
+        local bin_img = screen.image(left, top, right, bottom)
+        if type(binopt) == "string" and binopt == "auto" then
+            bin_img = bin_img:binaryzation()
+        else
+            bin_img = bin_img:binaryzation(binopt)
+        end
+        return bin_img:dm_ocr(mdict, sim)
+    end
+else
+    _xxt_dict_meta.__index.screen_dm_find = function()
+        error('XXTBinDict.screen_dm_find 仅支持 XXT 1.3.8-20251129 或以后的版本')
+    end
+    _xxt_dict_meta.__index.screen_dm_ocr = function()
+        error('XXTBinDict.screen_dm_ocr 仅支持 XXT 1.3.8-20251129 或以后的版本')
+    end
+end
+
 local _M = {
-    _VERSION = "0.2.4";
+    _VERSION = "0.2.5",
 }
 
 function _M.init(...)
     local dict = check_value(1, "table", ...)
-	local ret = {
-        dict_donwscale = 1;
-        dict_confidence_threshold = 80;
+    local ret = {
+        dict_donwscale = 1,
+        dict_confidence_threshold = 80,
     }
     dict = table.deep_copy(dict)
     ret.dict = dict
+    local matrix_buf = nil
+    if image.load_matrix then
+        matrix_buf = {}
+    end
     for i, v in ipairs(dict) do
         local name = v[1]
         if type(name) ~= "string" then
-            return error("dict["..i.."] "..name.." name must be string")
+            return error("dict[" .. i .. "] " .. name .. " name must be string")
         end
         if type(v[2]) ~= "table" and type(v[2]) ~= "string" then
-            return error("dict["..i.."] "..name.." binopt must be table")
+            return error("dict[" .. i .. "] " .. name .. " binopt must be table")
         end
         if type(v[2]) == "string" then
             local binopt = {}
             for _, co in ipairs(v[2]:split(",")) do
                 co = co:split("-")
                 if #co ~= 2 then
-                    return error("dict["..i.."] "..name.." binopt must be table")
+                    return error("dict[" .. i .. "] " .. name .. " binopt must be table")
                 end
                 local c, o = tonumber(co[1], 16), tonumber(co[2], 16)
                 if not c or not o then
-                    return error("dict["..i.."] "..name.." binopt must be table")
+                    return error("dict[" .. i .. "] " .. name .. " binopt must be table")
                 end
-                binopt[#binopt + 1] = {c, o}
+                binopt[#binopt + 1] = { c, o }
             end
             v[2] = binopt
         else
             for binopt_i, cso in ipairs(v[2]) do
                 if type(cso) ~= "table" then
-                    return error("dict["..i.."]["..binopt_i.."] "..name.." must be table")
+                    return error("dict[" .. i .. "][" .. binopt_i .. "] " .. name .. " must be table")
                 end
                 if type(cso[1]) ~= "number" then
-                    return error("dict["..i.."]["..binopt_i.."][1] "..name.." must be number")
+                    return error("dict[" .. i .. "][" .. binopt_i .. "][1] " .. name .. " must be number")
                 end
                 if type(cso[2]) ~= "number" then
-                    return error("dict["..i.."]["..binopt_i.."][2] "..name.." must be number")
+                    return error("dict[" .. i .. "][" .. binopt_i .. "][2] " .. name .. " must be number")
                 end
             end
         end
         if #(v[2]) < 1 then
-            return error("dict["..i.."] "..name.." binopt size must > 0")
+            return error("dict[" .. i .. "] " .. name .. " binopt size must > 0")
         end
         if not image.is(v[3]) then
             local img = image.load_data(v[3])
             if img then
+                v[3] = img
                 goto continue
             end
             img = image.load_file(v[3])
             if img then
+                v[3] = img
                 goto continue
             end
-            img = image.load_file(XXT_RES_PATH.."/"..v[3])
+            img = image.load_file(XXT_RES_PATH .. "/" .. v[3])
             if img then
+                v[3] = img
                 goto continue
             end
-            return error("dict["..i.."] "..tostring(v[1]).." image load failed")
+            return error("dict[" .. i .. "] " .. name .. " image load failed")
         end
         ::continue::
+        if matrix_buf then
+            v.matrix = v[3]:to_matrix(name)
+            matrix_buf[#matrix_buf + 1] = v.matrix
+        end
     end
     ret.name_dict = {}
     for i, v in ipairs(dict) do
         ret.name_dict[v[1]] = v
     end
+    if matrix_buf then
+        ret.mdict = matrix_dict.load_string(table.concat(matrix_buf, "\n"))
+    end
     return setmetatable(ret, _xxt_dict_meta)
 end
+
 local _xxt_dict_init = _M.init
 
 function _M.touchelf_dict_init(...)
@@ -341,20 +439,20 @@ function _M.touchelf_dict_init(...)
     local dict = {}
     for i, te_v in ipairs(tedict) do
         local binopt = {
-            csim_mode = true;
-            csim_algorithm = 2;
-            white_background = true;
+            csim_mode = true,
+            csim_algorithm = 2,
+            white_background = true,
         }
-        for _,te_v_binopt in ipairs(te_v[2]) do
-            binopt[#binopt + 1] = {te_v_binopt, te_v[3]}
+        for _, te_v_binopt in ipairs(te_v[2]) do
+            binopt[#binopt + 1] = { te_v_binopt, te_v[3] }
         end
         local img = image.load_data(te_v[4]:base64_decode())
         if not img then
-            return error("dict["..i.."] "..tostring(te_v[1]).." image load failed")
+            return error("dict[" .. i .. "] " .. tostring(te_v[1]) .. " image load failed")
         end
-        dict[#dict + 1] = {te_v[1], binopt, img}
+        dict[#dict + 1] = { te_v[1], binopt, img }
     end
-	return _xxt_dict_init(dict)
+    return _xxt_dict_init(dict)
 end
 
 return _M
