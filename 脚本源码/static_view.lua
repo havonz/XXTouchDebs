@@ -1,3 +1,4 @@
+-- @xxt.portable
 --[[
 
 	static_view.lua
@@ -57,9 +58,10 @@
 	-- 将属性更新到界面上
 	border:refresh(0.5) -- 修改属性后可使用该方法刷新视图，可传入动画时长参数，默认 0
 
+	-- :eval 会把动作函数发送到视图服务。调用脚本使用 v4 版加密时，@xxt.portable 允许导出这个函数。
 	-- 对四边形方框执行一些自定义动作
 	-- 错误的代码会导致 toast 服务崩溃
-	border:eval(function(border)
+	border:eval(function(border) -- @xxt.portable
 		require('objc').UIView.animateWithDuration(0.3).animations(oneTimeBlock(function()
 			border.transform = CGAffineTransformRotate(border.transform(), 45 * (math.pi / 180.0))
 		end))()
@@ -87,7 +89,7 @@
 
 	-- 对文本标签执行一些自定义动作
 	-- 错误的代码会导致 toast 服务崩溃
-	txt_label:eval(function(txt_label)
+	txt_label:eval(function(txt_label) -- @xxt.portable
 		require('objc').UIView.animateWithDuration(0.3).animations(oneTimeBlock(function()
 			txt_label.transform = CGAffineTransformRotate(txt_label.transform(), 45 * (math.pi / 180.0))
 		end))()
@@ -114,7 +116,7 @@
 
 	-- 对图像标签执行一些自定义动作
 	-- 错误的代码会导致 toast 服务崩溃
-	img_label:eval(function(img_label)
+	img_label:eval(function(img_label) -- @xxt.portable
 		require('objc').UIView.animateWithDuration(0.3).animations(oneTimeBlock(function()
 			img_label.transform = CGAffineTransformRotate(img_label.transform(), 45 * (math.pi / 180.0))
 		end))()
@@ -428,12 +430,20 @@ else
 	function toast_service_run_script(func, ...)
         local a = toast_service_task
 		return cpdistributed_messaging_center_send_message_and_receive_reply(toast_service_center_name, "eval-script", {
-			script = string.format("load('%s')() local ok,err = pcall(load('%s')) if not ok then sys.log(err) end", shared_defined, lua_closure_dump(func, ...):to_hex('\\x')),
+			script = string.format("autoreleasepool(function() load('%s')() local ok,err = pcall(load('%s')) if not ok then sys.log(err) end end)", shared_defined, lua_closure_dump(func, ...):to_hex('\\x')),
 		})
 	end
 end
 
 local toast_service_run_script = toast_service_run_script
+
+local function dump_view_action(action)
+	local ok, bytes = pcall(string.dump, action)
+	if not ok then
+		error(':eval 的动作函数无法导出。脚本使用 v4 版加密时，请在函数签名后加 -- @xxt.portable (' .. tostring(bytes) .. ')', 3)
+	end
+	return bytes
+end
 
 local function rect_rotate90(x, y, width, height, orientation)
 	if orientation < 0 then
@@ -544,16 +554,17 @@ function new_rectangle_border(...)
 				has_been_destroyed = true
 				return
 			end
-			toast_service_run_script(function(actions, props, ...)
+			toast_service_run_script(function(action_bytes, props, ...)
 				borderMap = borderMap or {}
 				local border = borderMap[props.uuid]
 				if border then
-					local args = {...}
+					local actions = assert(load(action_bytes, '=view:eval', 'b'))
+					local args = table.pack(...)
 					dispatch_sync('main', function()
-						actions(border, table.unpack(args))
+						actions(border, table.unpack(args, 1, args.n))
 					end)
 				end
-			end, actions, props, ...)
+			end, dump_view_action(actions), props, select(2, ...))
 		end
 	end
 
@@ -744,16 +755,17 @@ function new_text_label(...)
 				has_been_destroyed = true
 				return
 			end
-			toast_service_run_script(function(actions, props, ...)
+			toast_service_run_script(function(action_bytes, props, ...)
 				textLabelMap = textLabelMap or {}
 				local textLabel = textLabelMap[props.uuid]
 				if textLabel then
-					local args = {...}
+					local actions = assert(load(action_bytes, '=view:eval', 'b'))
+					local args = table.pack(...)
 					dispatch_sync('main', function()
-						actions(textLabel, table.unpack(args))
+						actions(textLabel, table.unpack(args, 1, args.n))
 					end)
 				end
-			end, actions, props, ...)
+			end, dump_view_action(actions), props, select(2, ...))
 		end
 	end
 
@@ -929,16 +941,17 @@ function new_image_label(...)
 				has_been_destroyed = true
 				return
 			end
-			toast_service_run_script(function(actions, props, ...)
+			toast_service_run_script(function(action_bytes, props, ...)
 				imageLabelMap = imageLabelMap or {}
 				local imageLabel = imageLabelMap[props.uuid]
 				if imageLabel then
-					local args = {...}
+					local actions = assert(load(action_bytes, '=view:eval', 'b'))
+					local args = table.pack(...)
 					dispatch_sync('main', function()
-						actions(imageLabel, table.unpack(args))
+						actions(imageLabel, table.unpack(args, 1, args.n))
 					end)
 				end
-			end, actions, props, ...)
+			end, dump_view_action(actions), props, select(2, ...))
 		end
 	end
 
@@ -1039,6 +1052,6 @@ return {
 	kill_toast_service = kill_toast_service,
 	init = ensure_static_view_toast_service,
 	remove_all_views = kill_toast_service,
-	_VERSION = "0.2.3",
+	_VERSION = "0.2.4",
 	_AUTHOR = "havonz",
 }
